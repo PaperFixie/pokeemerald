@@ -21,5 +21,5 @@ This document contains the complete Modern Emerald Pokédex including Modern Spa
 | #015 | ![beedrill](/graphics/pokemon/beedrill/front.png) | <mark>Beedrill | ![bug](/graphics/types/bug.png) ![poison](/graphics/types/poison.png) | <mark>395 | 65 | <mark>90 | 40 | 45 | 80 | 75 | Evolve Kakuna |
 | #016 | ![pidgey](/graphics/pokemon/pidgey/front.png) | Pidgey | ![normal](/graphics/types/normal.png) ![flying](/graphics/types/flying.png) | 251 | 40 | 45 | 40 | 35 | 35 | 56 | Route 104, Route 115, Route 116 | Day
 | #017 | ![pidgeotto](/graphics/pokemon/pidgeotto/front.png) | Pidgeotto | ![normal](/graphics/types/normal.png) ![flying](/graphics/types/flying.png) | 349 | 63 | 60 | 55 | 50 | 50 | 71 | Route 110 East, Route 115 | Day
-| #018 | ![pidgeot](/graphics/pokemon/pidgeot/front.png) | <mark>Pidgeot | ![normal](/graphics/types/normal.png) ![flying](/graphics/types/flying.png) | <mark>479 | 83 | 80 | 75 | 70 | 70 | 101 | Evolve Pidgeotto
+| #018 | ![pidgeot](/graphics/pokemon/pidgeot/front.png) | <mark>Pidgeot | ![normal](/graphics/types/normal.png) ![flying](/graphics/types/flying.png) | <mark>479 | 83 | 80 | 75 | 70 | 70 | <mark>101 | Evolve Pidgeotto
 
