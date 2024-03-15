@@ -15,5 +15,3 @@ RUN wget https://apt.devkitpro.org/install-devkitpro-pacman \
 RUN dkp-pacman -Sy \
     && dkp-pacman -S gba-dev \
     && source /etc/profile.d/devkit-env.sh
-
-# run `make modern`
