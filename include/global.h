@@ -534,11 +534,7 @@ struct SaveBlock2
              u16 optionTypeEffective:1;
              u16 optionsFishing:1;
              u16 optionsFastIntro:1;
-             u16 optionsAlternateSpawns:1; //in the challenges menu
-             u16 optionsLimitDifficulty:1; //in the challenges menu
-             u16 optionsShinyChance:4; //in the challenges menu
              u16 optionsfollowerLargeEnable:1;
-             u16 optionsWildMonDropItems:1; //in the challenge menu
              u16 optionsFastBattle:1;
              u16 optionsEvenFasterJoy:1;
              u16 optionsBikeMusic:1;
@@ -549,6 +545,7 @@ struct SaveBlock2
              u16 optionsSoundEffects:2;
              u16 optionsSkipIntro:1;
              u16 optionsLRtoRun:1;
+             u16 optionsBallPrompt:1;
     /*0x18*/ struct Pokedex pokedex;
     /*0x90*/ u8 filler_90[0x8];
     /*0x98*/ struct Time localTimeOffset;
@@ -1145,12 +1142,26 @@ struct SaveBlock1
         u8 tx_Nuzlocke_Deletion:1;
         u8 tx_Random_Starter:1;
         u8 tx_Challenges_MaxPartyIVs:2;
-        u8 tx_Features_InfiniteTMs:1;
-        u8 optionsPoisonSurvive:1; //will be deleted
+        u8 tx_Mode_InfiniteTMs:1;
+        u8 tx_Mode_PoisonSurvive:1;
         u8 optionsEasierFeebas:1; //will be deleted
         u8 tx_Features_PkmnDeath:1;
         u8 tx_Challenges_PCHeal:1;
         u8 tx_Features_RTCType:1;
+        u8 tx_Mode_AlternateSpawns:1;
+        u8 tx_Features_LimitDifficulty:1;
+        u8 tx_Features_ShinyChance:4;
+        u8 tx_Features_WildMonDropItems:1;
+        u8 tx_Features_Unlimited_WT:1;
+        u8 tx_Mode_Synchronize:1;
+        u8 tx_Mode_Mints:1;
+        u8 tx_Mode_New_Citrus:1;
+        u8 tx_Mode_Modern_Types:1;
+        u8 tx_Mode_Fairy_Types:1;
+        u8 tx_Mode_New_Stats:1;
+        u8 tx_Mode_Sturdy:1;
+        u8 tx_Mode_Modern_Moves:1;
+        u8 tx_Mode_Legendary_Abilities:1;
 };
 
 extern struct SaveBlock1* gSaveBlock1Ptr;

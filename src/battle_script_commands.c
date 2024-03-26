@@ -1426,8 +1426,8 @@ static void ModulateDmgByType(u8 multiplier)
 
 s32 GetTypeEffectiveness(struct Pokemon *mon, u8 moveType) {
     u16 species = GetMonData(mon, MON_DATA_SPECIES);
-    u8 type1 = gSpeciesInfo[species].types[0];
-    u8 type2 = gSpeciesInfo[species].types[1];
+    u8 type1 = GetTypeBySpecies(species, 1);
+    u8 type2 = GetTypeBySpecies(species, 2);
     s32 i = 0;
     u8 multiplier;
     s32 flags = 0;
@@ -1878,7 +1878,7 @@ static void Cmd_adjustnormaldamage(void)
         RecordItemEffectBattle(gBattlerTarget, holdEffect);
         gSpecialStatuses[gBattlerTarget].focusBanded = 1;
     }
-    if (gBattleMons[gBattlerTarget].ability == ABILITY_STURDY && (gBattleMons[gBattlerTarget].maxHP == gBattleMons[gBattlerTarget].hp))
+    if (gBattleMons[gBattlerTarget].ability == ABILITY_STURDY && (gBattleMons[gBattlerTarget].maxHP == gBattleMons[gBattlerTarget].hp) && (gSaveBlock1Ptr->tx_Mode_Sturdy == 1))
         gProtectStructs[gBattlerTarget].endured = 1;
     if (!(gBattleMons[gBattlerTarget].status2 & STATUS2_SUBSTITUTE)
      && (gBattleMoves[gCurrentMove].effect == EFFECT_FALSE_SWIPE || gProtectStructs[gBattlerTarget].endured || gSpecialStatuses[gBattlerTarget].focusBanded)
@@ -1923,7 +1923,7 @@ static void Cmd_adjustnormaldamage2(void)
         RecordItemEffectBattle(gBattlerTarget, holdEffect);
         gSpecialStatuses[gBattlerTarget].focusBanded = 1;
     }
-    if (gBattleMons[gBattlerTarget].ability == ABILITY_STURDY && (gBattleMons[gBattlerTarget].maxHP == gBattleMons[gBattlerTarget].hp))
+    if (gBattleMons[gBattlerTarget].ability == ABILITY_STURDY && (gBattleMons[gBattlerTarget].maxHP == gBattleMons[gBattlerTarget].hp) && (gSaveBlock1Ptr->tx_Mode_Sturdy == 1))
         gProtectStructs[gBattlerTarget].endured;
     if (!(gBattleMons[gBattlerTarget].status2 & STATUS2_SUBSTITUTE)
      && (gProtectStructs[gBattlerTarget].endured || gSpecialStatuses[gBattlerTarget].focusBanded)
@@ -6303,7 +6303,7 @@ static void Cmd_adjustsetdamage(void)
         RecordItemEffectBattle(gBattlerTarget, holdEffect);
         gSpecialStatuses[gBattlerTarget].focusBanded = 1;
     }
-    if (gBattleMons[gBattlerTarget].ability == ABILITY_STURDY && (gBattleMons[gBattlerTarget].maxHP == gBattleMons[gBattlerTarget].hp))
+    if (gBattleMons[gBattlerTarget].ability == ABILITY_STURDY && (gBattleMons[gBattlerTarget].maxHP == gBattleMons[gBattlerTarget].hp) && (gSaveBlock1Ptr->tx_Mode_Sturdy == 1))
         gProtectStructs[gBattlerTarget].endured;
     if (!(gBattleMons[gBattlerTarget].status2 & STATUS2_SUBSTITUTE)
      && (gBattleMoves[gCurrentMove].effect == EFFECT_FALSE_SWIPE || gProtectStructs[gBattlerTarget].endured || gSpecialStatuses[gBattlerTarget].focusBanded)
@@ -6928,7 +6928,7 @@ static void Cmd_various(void)
         {
             gLastUsedItem = gBattleResources->battleHistory->heldItem[battlers[i]];
             gBattleResources->battleHistory->heldItem[battlers[i]] = ITEM_NONE;
-            if ((gSaveBlock2Ptr->optionsWildMonDropItems == 1) && gLastUsedItem && !(gBattleTypeFlags & (BATTLE_TYPE_TRAINER | BATTLE_TYPE_FIRST_BATTLE | BATTLE_TYPE_WALLY_TUTORIAL)))
+            if ((gSaveBlock1Ptr->tx_Features_WildMonDropItems == 1) && gLastUsedItem && !(gBattleTypeFlags & (BATTLE_TYPE_TRAINER | BATTLE_TYPE_FIRST_BATTLE | BATTLE_TYPE_WALLY_TUTORIAL)))
             {
                 if(AddBagItem(gLastUsedItem, 1))
                     gBattleCommunication[MULTISTRING_CHOOSER] = B_MSG_ITEM_DROPPED;
@@ -9395,7 +9395,12 @@ static void Cmd_trydobeatup(void)
                 gBattleMoveDamage /= baseStat[gSaveBlock1Ptr->tx_Challenges_BaseStatEqualizer];
             }
             else
-                gBattleMoveDamage /= gSpeciesInfo[gBattleMons[gBattlerTarget].species].baseDefense;
+            {
+                if ((gSpeciesInfo[gBattleMons[gBattlerTarget].species].baseDefense_old != 0) && (gSaveBlock1Ptr->tx_Mode_New_Stats == 0))
+                    gBattleMoveDamage /= gSpeciesInfo[gBattleMons[gBattlerTarget].species].baseDefense_old;
+                else
+                    gBattleMoveDamage /= gSpeciesInfo[gBattleMons[gBattlerTarget].species].baseDefense;
+            }
             gBattleMoveDamage = (gBattleMoveDamage / 50) + 2;
             if (gProtectStructs[gBattlerAttacker].helpingHand)
                 gBattleMoveDamage = gBattleMoveDamage * 15 / 10;
@@ -10356,6 +10361,9 @@ static void Cmd_handleballthrow(void)
     {
         u32 odds;
         u8 catchRate;
+
+        gLastThrownBall = gLastUsedItem;
+        gBallToDisplay = gLastThrownBall;
 
         if (gLastUsedItem == ITEM_SAFARI_BALL)
             catchRate = gBattleStruct->safariCatchFactor * 1275 / 100;

@@ -116,6 +116,7 @@ static void SetDefaultOptions(void)
     gSaveBlock2Ptr->optionsSoundEffects = 0;
     gSaveBlock2Ptr->optionsSkipIntro = 1;
     gSaveBlock2Ptr->optionsLRtoRun = 0;
+    gSaveBlock2Ptr->optionsBallPrompt = 1;
 }
 
 static void ClearPokedexFlags(void)
@@ -171,6 +172,8 @@ void NewGameInitData(void)
 {
     bool8 HardPrev = FlagGet(FLAG_DIFFICULTY_HARD);
     bool8 TMPrev = FlagGet(FLAG_FINITE_TMS);
+    bool8 UnlimitedWT = FlagGet(FLAG_UNLIMITIED_WONDERTRADE);
+    bool8 EnableMints = FlagGet(FLAG_MINTS_ENABLED);
 
     if (gSaveFileStatus == SAVE_STATUS_EMPTY || gSaveFileStatus == SAVE_STATUS_CORRUPT)
         RtcReset();
@@ -229,9 +232,12 @@ void NewGameInitData(void)
     WipeTrainerNameRecords();
     ResetTrainerHillResults();
     ResetContestLinkResults();
+    RandomizeTypeEffectivenessListEWRAM(Random32());
 
     HardPrev ? FlagSet(FLAG_DIFFICULTY_HARD) : FlagClear(FLAG_DIFFICULTY_HARD);
     TMPrev ? FlagSet(FLAG_FINITE_TMS) : FlagClear(FLAG_FINITE_TMS);
+    UnlimitedWT ? FlagSet(FLAG_UNLIMITIED_WONDERTRADE) : FlagClear(FLAG_UNLIMITIED_WONDERTRADE);
+    EnableMints ? FlagSet(FLAG_MINTS_ENABLED) : FlagClear(FLAG_MINTS_ENABLED);
 
     /*if (difficultyPrev == DIFFICULTY_EASY)
         VarSet(VAR_DIFFICULTY, DIFFICULTY_EASY);

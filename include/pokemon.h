@@ -333,6 +333,14 @@ struct SpeciesInfo
  /* 0x18 */ u8 safariZoneFleeRate;
  /* 0x19 */ u8 bodyColor : 7;
             u8 noFlip : 1;
+ /* 0x00 */ u8 baseHP_old;
+ /* 0x01 */ u8 baseAttack_old;
+ /* 0x02 */ u8 baseDefense_old;
+ /* 0x03 */ u8 baseSpeed_old;
+ /* 0x04 */ u8 baseSpAttack_old;
+ /* 0x05 */ u8 baseSpDefense_old;
+ /* 0x06 */ u8 types_old[2];
+            u8 abilities_old[2];
 };
 
 #define MOVE_CATEGORY_PHYSICAL 0
@@ -398,8 +406,10 @@ extern const u8 gFacilityClassToPicIndex[];
 extern const u8 gFacilityClassToTrainerClass[];
 extern const struct SpeciesInfo gSpeciesInfo[];
 extern const u8 *const gItemEffectTable[];
+extern const u8 *const gItemEffectTable_OldSitrus[];
 extern const u32 gExperienceTables[][MAX_LEVEL + 1];
 extern const u16 *const gLevelUpLearnsets[];
+extern const u16 *const gLevelUpLearnsets_Original[];
 extern const u8 gPPUpGetMask[];
 extern const u8 gPPUpClearMask[];
 extern const u8 gPPUpAddValues[];

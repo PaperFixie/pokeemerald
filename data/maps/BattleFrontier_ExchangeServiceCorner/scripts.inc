@@ -264,7 +264,15 @@ BattleFrontier_ExchangeServiceCorner_EventScript_ChooseVitamin::
 	case MULTI_B_PRESSED, BattleFrontier_ExchangeServiceCorner_EventScript_ClerkGoodbye
 	end
 
+BattleFrontier_ExchangeServiceCorner_EventScript_YouAlreadyHaveThis::
+	msgbox BattleFrontier_ExchangeServiceCorner_Text_YouAlreadyHaveThis, MSGBOX_DEFAULT
+	goto BattleFrontier_ExchangeServiceCorner_EventScript_ChooseVitamin
+	release
+	end
+
 BattleFrontier_ExchangeServiceCorner_EventScript_EonTicket::
+	checkitem ITEM_EON_TICKET, 1
+	goto_if_eq VAR_RESULT, TRUE, BattleFrontier_ExchangeServiceCorner_EventScript_YouAlreadyHaveThis
 	msgbox BattleFrontier_ExchangeServiceCorner_Text_ConfirmEonTicket, MSGBOX_YESNO
 	goto_if_eq VAR_RESULT, NO, BattleFrontier_ExchangeServiceCorner_EventScript_ChooseVitamin
 	setvar VAR_0x8008, 48
@@ -273,6 +281,8 @@ BattleFrontier_ExchangeServiceCorner_EventScript_EonTicket::
 	end
 
 BattleFrontier_ExchangeServiceCorner_EventScript_MysticTicket::
+	checkitem ITEM_MYSTIC_TICKET, 1
+	goto_if_eq VAR_RESULT, TRUE, BattleFrontier_ExchangeServiceCorner_EventScript_YouAlreadyHaveThis
 	msgbox BattleFrontier_ExchangeServiceCorner_Text_ConfirmMysticTicket, MSGBOX_YESNO
 	goto_if_eq VAR_RESULT, NO, BattleFrontier_ExchangeServiceCorner_EventScript_ChooseVitamin
 	setvar VAR_0x8008, 96
@@ -281,6 +291,8 @@ BattleFrontier_ExchangeServiceCorner_EventScript_MysticTicket::
 	end
 
 BattleFrontier_ExchangeServiceCorner_EventScript_AuroraTicket::
+	checkitem ITEM_AURORA_TICKET, 1
+	goto_if_eq VAR_RESULT, TRUE, BattleFrontier_ExchangeServiceCorner_EventScript_YouAlreadyHaveThis
 	msgbox BattleFrontier_ExchangeServiceCorner_Text_ConfirmAuroraTicket, MSGBOX_YESNO
 	goto_if_eq VAR_RESULT, NO, BattleFrontier_ExchangeServiceCorner_EventScript_ChooseVitamin
 	setvar VAR_0x8008, 96
@@ -289,6 +301,8 @@ BattleFrontier_ExchangeServiceCorner_EventScript_AuroraTicket::
 	end
 
 BattleFrontier_ExchangeServiceCorner_EventScript_OldMap::
+	checkitem ITEM_OLD_SEA_MAP, 1
+	goto_if_eq VAR_RESULT, TRUE, BattleFrontier_ExchangeServiceCorner_EventScript_YouAlreadyHaveThis
 	msgbox BattleFrontier_ExchangeServiceCorner_Text_ConfirmOldMap, MSGBOX_YESNO
 	goto_if_eq VAR_RESULT, NO, BattleFrontier_ExchangeServiceCorner_EventScript_ChooseVitamin
 	setvar VAR_0x8008, 96
@@ -437,6 +451,9 @@ BattleFrontier_ExchangeServiceCorner_EventScript_Girl::
 BattleFrontier_ExchangeServiceCorner_EventScript_OldWTMan::
 	msgbox BattleFrontier_ExchangeServiceCorner_EventScript_OldWTMan_Text, MSGBOX_NPC
 	end
+
+BattleFrontier_ExchangeServiceCorner_Text_YouAlreadyHaveThis:
+	.string "You already have this item.$"
 
 BattleFrontier_ExchangeServiceCorner_EventScript_OldWTMan_Text:
 	.string "Hi! If you are looking for the\n"
@@ -734,6 +751,7 @@ BattleFrontier_ExchangeServiceCorner_Text_ScopeLensDesc::
 	.string "critical-hit rate.$"
 
 EventScript_DoWonderTrade::
+	goto_if_set FLAG_UNLIMITIED_WONDERTRADE, EventScript_DoWonderTradeStartNoLimit
 	goto_if_unset FLAG_WONDERTRADE_FIRSTIME, EventScript_FirstTimeWonderRandomizer
 	special CheckIfRandomizerIsActive
 	goto_if_unset FLAG_WT_ENABLED_RANDOMIZER, EventScript_DoWonderTradeStart
@@ -746,7 +764,6 @@ EventScript_DoWonderTrade::
 	end
 
 EventScript_DoWonderTradeStart:
-	goto_if_unset FLAG_WONDERTRADE_FIRSTIME, EventScript_FirstTimeWonder
 	goto_if_unset FLAG_BADGE05_GET, EventScript_WTNotActiveYet
 	msgbox EventScript_DoWonderTrade_Text_Welcome, MSGBOX_DEFAULT
 	closemessage
@@ -817,6 +834,21 @@ EventScript_DoWonderTradeCancelSaveThirdTrade::
 	closemessage
 	end
 
+EventScript_DoWonderTradeStartNoLimit::
+	goto_if_unset FLAG_WONDERTRADE_FIRSTIME, EventScript_FirstTimeWonderUnlimited
+	goto_if_unset FLAG_BADGE05_GET, EventScript_WTNotActiveYet
+	special CheckIfChallengesAreActive
+	goto_if_set FLAG_NO_WT_BECAUSE_CHALLENGE, EventScript_WTChallengesUnlimited
+	call Common_EventScript_SaveGame
+	goto_if_eq VAR_RESULT, 0, EventScript_DoWonderTradeCancelSaveThirdTrade
+	special ChoosePartyMon
+	waitstate
+	goto EventScript_DoWonderTradeTrade
+
+EventScript_WTChallengesUnlimited::
+	goto_if_unset FLAG_SYS_GAME_CLEAR, EventScript_WTChallengesCancel
+	return
+
 EventScript_DoWonderTradeTrade::
 	compare VAR_0x8004, PARTY_SIZE
 	goto_if_ge EventScript_End
@@ -841,10 +873,9 @@ EventScript_FirstTimeWonderRandomizer::
 	closemessage
 	end
 
-EventScript_FirstTimeWonder::
-	msgbox EventScript_FirstTimeWonder_Text, MSGBOX_DEFAULT
+EventScript_FirstTimeWonderUnlimited::
+	msgbox EventScript_FirstTimeWonder_Text_Unlimited, MSGBOX_DEFAULT
 	setflag FLAG_WONDERTRADE_FIRSTIME
-	goto_if_unset FLAG_BADGE05_GET, EventScript_WTNotActiveYet
 	closemessage
 	end
 
@@ -877,6 +908,22 @@ EventScript_FirstTimeWonder_Text:
 	.string "WONDERTRADE! Oh, also, to not\n"
 	.string "overload the server, there is a\p"
 	.string "maximum of 3 DAILY WONDERTRADES.\p"
+	.string "We hope you have a great\n"
+	.string "WONDERTRADE experience!$"
+
+EventScript_FirstTimeWonder_Text_Unlimited:
+	.string "Hello trainer!\p"
+	.string "Oh, is this your first time\n"
+	.string "using the WONDERTRADE SYSTEM?\p"
+	.string "WONDERTRADE is a techonology developed\n"
+	.string "by DEVON CORP. to TRADE anonimously.\p"
+	.string "You basically send a selected\n"
+	.string "POKéMON to someone, and they send\p"
+	.string "you another one in exchange.\n"
+	.string "Neither you nor the other trainer\p"
+	.string "know which POKéMON is going to\n"
+	.string "show up. And that is the fun of\l"
+	.string "WONDERTRADE!\p"
 	.string "We hope you have a great\n"
 	.string "WONDERTRADE experience!$"
 
