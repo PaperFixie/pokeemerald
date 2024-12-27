@@ -64,10 +64,12 @@
 #include "constants/battle_frontier.h"
 #include "constants/weather.h"
 #include "constants/metatile_labels.h"
+#include "constants/rgb.h"
 #include "palette.h"
 #include "constants/metatile_behaviors.h"
 #include "item.h"
 #include "item_menu.h"
+#include "constants/abilities.h"
 
 #define TAG_ITEM_ICON 5500
 
@@ -2364,6 +2366,16 @@ void ShowScrollableMultichoice(void)
         task->tKeepOpenAfterSelect = FALSE;
         task->tTaskId = taskId;
         break;
+    case SCROLL_MULTI_BF_MOVE_TUTOR_3:
+        task->tMaxItemsOnScreen = 4;
+        task->tNumItems = 4;
+        task->tLeft = 15;
+        task->tTop = 1;
+        task->tWidth = 14;
+        task->tHeight = 8;
+        task->tKeepOpenAfterSelect = FALSE;
+        task->tTaskId = taskId;
+        break;
     case SCROLL_MULTI_SS_TIDAL_DESTINATION:
         task->tMaxItemsOnScreen = MAX_SCROLL_MULTI_ON_SCREEN;
         task->tNumItems = 7;
@@ -2523,6 +2535,13 @@ static const u8 *const sScrollableMultichoiceOptions[][MAX_SCROLL_MULTI_LENGTH] 
         gText_IcePunch48BP,
         gText_ThunderPunch48BP,
         gText_FirePunch48BP,
+        gText_Exit
+    },
+    [SCROLL_MULTI_BF_MOVE_TUTOR_3] =
+    {
+        gText_FrenzyPlant64BP,
+        gText_BlastBurn64BP,
+        gText_HydroCannon64BP,
         gText_Exit
     },
     [SCROLL_MULTI_SS_TIDAL_DESTINATION] =
@@ -3089,12 +3108,21 @@ static const u16 sBattleFrontier_TutorMoves2[] =
     MOVE_FIRE_PUNCH
 };
 
+static const u16 sBattleFrontier_TutorMoves3[] =
+{
+    MOVE_FRENZY_PLANT,
+    MOVE_BLAST_BURN,
+    MOVE_HYDRO_CANNON,
+};
+
 void BufferBattleFrontierTutorMoveName(void)
 {
-    if (gSpecialVar_0x8005 != 0)
+    if (gSpecialVar_0x8005 == 1)
         StringCopy(gStringVar1, gMoveNames[sBattleFrontier_TutorMoves2[gSpecialVar_0x8004]]);
-    else
+    else if (gSpecialVar_0x8005 == 0)
         StringCopy(gStringVar1, gMoveNames[sBattleFrontier_TutorMoves1[gSpecialVar_0x8004]]);
+    else if (gSpecialVar_0x8005 == 2)
+        StringCopy(gStringVar1, gMoveNames[sBattleFrontier_TutorMoves3[gSpecialVar_0x8004]]);
 }
 
 static void ShowBattleFrontierTutorWindow(u8 menu, u16 selection)
@@ -3110,7 +3138,7 @@ static void ShowBattleFrontierTutorWindow(u8 menu, u16 selection)
         .baseBlock = 28,
     };
 
-    if (menu == SCROLL_MULTI_BF_MOVE_TUTOR_1 || menu == SCROLL_MULTI_BF_MOVE_TUTOR_2)
+    if (menu == SCROLL_MULTI_BF_MOVE_TUTOR_1 || menu == SCROLL_MULTI_BF_MOVE_TUTOR_2 || menu == SCROLL_MULTI_BF_MOVE_TUTOR_3)
     {
         if (gSpecialVar_0x8006 == 0)
         {
@@ -3153,13 +3181,23 @@ static void ShowBattleFrontierTutorMoveDescription(u8 menu, u16 selection)
         gText_Exit,
     };
 
-    if (menu == SCROLL_MULTI_BF_MOVE_TUTOR_1 || menu == SCROLL_MULTI_BF_MOVE_TUTOR_2)
+    static const u8 *const sBattleFrontier_TutorMoveDescriptions3[] =
+    {
+        BattleFrontier_Lounge7_Text_StrongElementalMoveDesc,
+        BattleFrontier_Lounge7_Text_StrongElementalMoveDesc,
+        BattleFrontier_Lounge7_Text_StrongElementalMoveDesc,
+        gText_Exit,
+    };
+
+    if (menu == SCROLL_MULTI_BF_MOVE_TUTOR_1 || menu == SCROLL_MULTI_BF_MOVE_TUTOR_2 || menu == SCROLL_MULTI_BF_MOVE_TUTOR_3)
     {
         FillWindowPixelRect(sTutorMoveAndElevatorWindowId, PIXEL_FILL(1), 0, 0, 96, 48);
         if (menu == SCROLL_MULTI_BF_MOVE_TUTOR_2)
             AddTextPrinterParameterized(sTutorMoveAndElevatorWindowId, FONT_NORMAL, sBattleFrontier_TutorMoveDescriptions2[selection], 0, 1, 0, NULL);
-        else
+        else if (menu == SCROLL_MULTI_BF_MOVE_TUTOR_1)
             AddTextPrinterParameterized(sTutorMoveAndElevatorWindowId, FONT_NORMAL, sBattleFrontier_TutorMoveDescriptions1[selection], 0, 1, 0, NULL);
+        else
+            AddTextPrinterParameterized(sTutorMoveAndElevatorWindowId, FONT_NORMAL, sBattleFrontier_TutorMoveDescriptions3[selection], 0, 1, 0, NULL);
     }
 }
 
@@ -3200,7 +3238,7 @@ void GetBattleFrontierTutorMoveIndex(void)
     moveTutor = VarGet(VAR_TEMP_FRONTIER_TUTOR_ID);
     moveIndex = VarGet(VAR_TEMP_FRONTIER_TUTOR_SELECTION);
 
-    if (moveTutor != 0)
+    if (moveTutor == 1)
     {
         i = 0;
         do
@@ -3213,12 +3251,25 @@ void GetBattleFrontierTutorMoveIndex(void)
             i++;
         } while (i < TUTOR_MOVE_COUNT);
     }
-    else
+    else if (moveTutor == 0)
     {
         i = 0;
         do
         {
             if (gTutorMoves[i] == sBattleFrontier_TutorMoves1[moveIndex])
+            {
+                gSpecialVar_0x8005 = i;
+                break;
+            }
+            i++;
+        } while (i < TUTOR_MOVE_COUNT);
+    }
+    else if (moveTutor == 2)
+    {
+        i = 0;
+        do
+        {
+            if (gTutorMoves[i] == sBattleFrontier_TutorMoves3[moveIndex])
             {
                 gSpecialVar_0x8005 = i;
                 break;
@@ -3399,7 +3450,7 @@ void SetDeoxysRockPalette(void)
     u32 paletteNum = IndexOfSpritePaletteTag(OBJ_EVENT_PAL_TAG_BIRTH_ISLAND_STONE);
     LoadPalette(&sDeoxysRockPalettes[(u8)VarGet(VAR_DEOXYS_ROCK_LEVEL)], OBJ_PLTT_ID(paletteNum), PLTT_SIZEOF(4));
     // Set faded to all black, weather blending handled during fade-in
-    CpuFill16(0, &gPlttBufferFaded[OBJ_PLTT_ID(paletteNum)], 32);
+    CpuFill16(RGB_BLACK, &gPlttBufferFaded[OBJ_PLTT_ID(paletteNum)], PLTT_SIZE_4BPP);
 }
 
 void SetPCBoxToSendMon(u8 boxId)
@@ -4503,4 +4554,21 @@ void SetSpDefStat(void)
 {
     u16 SpDefStat = gSpecialVar_0x8006;
     SetMonData(&gEnemyParty[0], MON_DATA_SPDEF, &SpDefStat);
+}
+
+void SwitchMonAbility(void)
+{
+    u16 species = GetMonData(&gPlayerParty[gSpecialVar_0x8004], MON_DATA_SPECIES, NULL);
+    u8 currentAbilityNum = GetMonData(&gPlayerParty[gSpecialVar_0x8004], MON_DATA_ABILITY_NUM, NULL);
+
+    if (gSpeciesInfo[species].abilities[1] != 0 && gSpeciesInfo[species].abilities[0] != gSpeciesInfo[species].abilities[1])
+    {
+        u8 newAbilityNum = !currentAbilityNum;
+        SetMonData(&gPlayerParty[gSpecialVar_0x8004], MON_DATA_ABILITY_NUM, &newAbilityNum);
+        gSpecialVar_Result = TRUE;
+    }
+    else
+    {
+        gSpecialVar_Result = FALSE;
+    }
 }

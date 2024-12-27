@@ -49,6 +49,7 @@
 #include "tx_randomizer_and_challenges.h"
 #include "pokedex.h" //tx_randomizer_and_challenges
 #include "constants/region_map_sections.h" //tx_randomizer_and_challenges
+#include "debug.h"
 
 
 enum {
@@ -912,6 +913,46 @@ u8 GetScaledLevel(u8 lvl)
         lvl = 100;
     if (lvl < 1)
         lvl = 1;
+
+    if (!FlagGet(FLAG_IS_CHAMPION))
+    {
+        if ((IsTrainerReadyForRematch() == TRUE) || (gTrainers[gTrainerBattleOpponent_A].trainerClass == TRAINER_CLASS_INTERVIEWER) && (gSaveBlock2Ptr->optionsDifficulty == 2)) 
+        //hardmode rematches level cap
+        {
+            if ((lvl >= 36) && (badgeCount == 5))
+                lvl = 33;
+            else if ((lvl >= 48) && (badgeCount == 6))
+                lvl = 43;
+            else if ((lvl >= 52) && (badgeCount == 7))
+                lvl = 47;
+            else if ((lvl >= 64) && (badgeCount == 8))
+                lvl = 57;
+        }
+        else if ((IsTrainerReadyForRematch() == TRUE) || (gTrainers[gTrainerBattleOpponent_A].trainerClass == TRAINER_CLASS_INTERVIEWER) && (gSaveBlock2Ptr->optionsDifficulty == 1)) 
+        //normal mode rematch level cap
+        {
+            if ((lvl >= 33) && (badgeCount == 5))
+                lvl = 30;
+            else if ((lvl >= 42) && (badgeCount == 6))
+                lvl = 37;
+            else if ((lvl >= 46) && (badgeCount == 7))
+                lvl = 41;
+            else if ((lvl >= 58) && (badgeCount == 8))
+                lvl = 53;
+        }
+        else if ((IsTrainerReadyForRematch() == TRUE) || (gTrainers[gTrainerBattleOpponent_A].trainerClass == TRAINER_CLASS_INTERVIEWER) && (gSaveBlock2Ptr->optionsDifficulty == 0)) 
+        //easy mode rematch level cap
+        {
+            if ((lvl >= 30) && (badgeCount == 5))
+                lvl = 30;
+            else if ((lvl >= 36) && (badgeCount == 6))
+                lvl = 36;
+            else if ((lvl >= 40) && (badgeCount == 7))
+                lvl = 40;
+            else if ((lvl >= 52) && (badgeCount == 8))
+                lvl = 52;
+        }
+    }
     return lvl;
 }
 
@@ -1475,6 +1516,9 @@ void BattleSetup_StartTrainerBattle_Debug(void)
 
 static void CB2_EndTrainerBattle(void)
 {
+    #if TX_DEBUG_SYSTEM_ENABLE == TRUE
+        gIsDebugBattle = FALSE;
+    #endif
     if (gTrainerBattleOpponent_A == TRAINER_SECRET_BASE)
     {
         SetMainCallback2(CB2_ReturnToFieldContinueScriptPlayMapMusic);

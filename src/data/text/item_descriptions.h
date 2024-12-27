@@ -435,6 +435,11 @@ static const u8 sNuggetDesc[] = _(
     "gold. Can be sold at\n"
     "a high price.");
 
+static const u8 sBigNuggetDesc[] = _(
+    "Big nugget of pure\n"
+    "gold. Can be sold at\n"
+    "a very high price.");
+
 static const u8 sHeartScaleDesc[] = _(
     "A lovely scale.\n"
     "It is coveted by\n"
@@ -1618,7 +1623,7 @@ static const u8 sJollyMintDesc[] = _(
 static const u8 sLaxMintDesc[] = _(
     "Changes POKéMON\n"
     "nature to LAX.\n"
-    "+DEF, SP.DEF");
+    "+DEF, -SP.DEF");
 
 static const u8 sLonelyMintDesc[] = _(
     "Changes POKéMON\n"
@@ -1638,7 +1643,7 @@ static const u8 sModestMintDesc[] = _(
 static const u8 sNaiveMintDesc[] = _(
     "Changes POKéMON\n"
     "nature to NAIVE.\n"
-    "+SPD, SP.DEF");
+    "+SPD, -SP.DEF");
 
 static const u8 sNaughtyMintDesc[] = _(
     "Changes POKéMON\n"

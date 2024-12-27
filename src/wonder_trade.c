@@ -67,7 +67,6 @@ static const u16 sIsInvalidItem[] = {
     [ITEM_03D]            = TRUE,
     [ITEM_03E]            = TRUE,
     [ITEM_048]            = TRUE,
-    [ITEM_052]            = TRUE,
     [ITEM_057]            = TRUE,
     [ITEM_058]            = TRUE,
     [ITEM_059]            = TRUE,
@@ -1153,6 +1152,11 @@ static u16 GetWonderTradeEvolutionTargetSpecies(struct Pokemon *mon)
                     break;
                 }
             }
+            break;
+        case EVO_ITEM_HOLD:
+                HeldItem = 0;
+                SetMonData(mon, MON_DATA_HELD_ITEM, &HeldItem);
+                targetSpecies = gEvolutionTable[species][i].targetSpecies;
             break;
         }
     }

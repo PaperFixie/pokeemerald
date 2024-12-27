@@ -650,6 +650,7 @@ extern const u8 gText_EVO_LEVEL_DAY[];
 extern const u8 gText_EVO_LEVEL_DUSK[];
 extern const u8 gText_EVO_ITEM_HOLD_DAY[];
 extern const u8 gText_EVO_ITEM_HOLD_NIGHT[];
+extern const u8 gText_EVO_ITEM_HOLD[];
 extern const u8 gText_EVO_MOVE[];
 extern const u8 gText_EVO_MOVE_TYPE[];
 extern const u8 gText_EVO_MAPSEC[];
@@ -881,6 +882,10 @@ extern const u8 gText_IcePunch48BP[];
 extern const u8 gText_ThunderPunch48BP[];
 extern const u8 gText_FirePunch48BP[];
 
+extern const u8 gText_FrenzyPlant64BP[];
+extern const u8 gText_BlastBurn64BP[];
+extern const u8 gText_HydroCannon64BP[];
+
 extern const u8 gText_SlateportCity[];
 extern const u8 gText_BattleFrontier[];
 extern const u8 gText_SouthernIsland[];
@@ -1024,6 +1029,8 @@ extern const u8 BattleFrontier_Lounge7_Text_PsychUpDesc[];
 extern const u8 BattleFrontier_Lounge7_Text_IcePunchDesc[];
 extern const u8 BattleFrontier_Lounge7_Text_ThunderPunchDesc[];
 extern const u8 BattleFrontier_Lounge7_Text_FirePunchDesc[];
+
+extern const u8 BattleFrontier_Lounge7_Text_StrongElementalMoveDesc[];
 
 extern const u8 gText_YourPartnerHasRetired[];
 
@@ -3190,5 +3197,8 @@ extern const u8 gText_NuzlockeCantThrowPokeBallSpeciesClause[];
 extern const u8 gText_NuzlockeCantThrowPokeBallAlreadyCaught[];
 extern const u8 gText_OneTypeChallengeCantThrowPokeBall[];
 extern const u8 gText_BattleRules_NoItems_Player[];
+extern const u8 gText_UnitSystemMetric[];   //tx_optionsPlus
+extern const u8 gText_UnitSystemImperial[]; //tx_optionsPlus
+extern const u8 gText_Var1DotVar2_Metric[];
 
 #endif // GUARD_STRINGS_H

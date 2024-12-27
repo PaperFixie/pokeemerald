@@ -1480,6 +1480,40 @@ s32 GetTypeEffectiveness(struct Pokemon *mon, u8 moveType) {
     return flags;
 }
 
+u8 getHiddenPowerType(void)
+{
+    u8 typeBits  = ((gBattleMons[gBattlerAttacker].hpIV & 1) << 0)
+                 | ((gBattleMons[gBattlerAttacker].attackIV & 1) << 1)
+                 | ((gBattleMons[gBattlerAttacker].defenseIV & 1) << 2)
+                 | ((gBattleMons[gBattlerAttacker].speedIV & 1) << 3)
+                 | ((gBattleMons[gBattlerAttacker].spAttackIV & 1) << 4)
+                 | ((gBattleMons[gBattlerAttacker].spDefenseIV & 1) << 5);
+
+    // Subtract 3 instead of 1 below because 2 types are excluded (TYPE_NORMAL and TYPE_MYSTERY)
+    // The final + 1 skips past Normal, and the following conditional skips TYPE_MYSTERY
+    u8 type = ((NUMBER_OF_MON_TYPES - 3) * typeBits) / 63 + 1;
+    if (type == TYPE_MYSTERY)
+        type = TYPE_FAIRY;
+    return type;
+}
+
+u8 getHiddenPowerType2(void)
+{
+    u8 typeBits  = ((gBattleMons[gActiveBattler].hpIV & 1) << 0)
+                 | ((gBattleMons[gActiveBattler].attackIV & 1) << 1)
+                 | ((gBattleMons[gActiveBattler].defenseIV & 1) << 2)
+                 | ((gBattleMons[gActiveBattler].speedIV & 1) << 3)
+                 | ((gBattleMons[gActiveBattler].spAttackIV & 1) << 4)
+                 | ((gBattleMons[gActiveBattler].spDefenseIV & 1) << 5);
+
+    // Subtract 3 instead of 1 below because 2 types are excluded (TYPE_NORMAL and TYPE_MYSTERY)
+    // The final + 1 skips past Normal, and the following conditional skips TYPE_MYSTERY
+    u8 type = ((NUMBER_OF_MON_TYPES - 3) * typeBits) / 63 + 1;
+    if (type == TYPE_MYSTERY)
+        type = TYPE_FAIRY;
+    return type;
+}
+
 static void Cmd_typecalc(void)
 {
     s32 i = 0;
@@ -1492,7 +1526,10 @@ static void Cmd_typecalc(void)
     }
 
     GET_MOVE_TYPE(gCurrentMove, moveType);
-    moveType = CheckAbilityChangeMoveType(gCurrentMove);
+    if (gCurrentMove == MOVE_HIDDEN_POWER)
+        moveType = getHiddenPowerType();
+    else
+        moveType = CheckAbilityChangeMoveType(gCurrentMove);
 
     // check stab
     if (IS_BATTLER_OF_TYPE(gBattlerAttacker, moveType))
@@ -1720,23 +1757,6 @@ u8 TypeCalc(u16 move, u8 attacker, u8 defender)
     return flags;
 }
 
-u8 getHiddenPowerType(void)
-{
-    u8 typeBits  = ((gBattleMons[gBattlerAttacker].hpIV & 1) << 0)
-                 | ((gBattleMons[gBattlerAttacker].attackIV & 1) << 1)
-                 | ((gBattleMons[gBattlerAttacker].defenseIV & 1) << 2)
-                 | ((gBattleMons[gBattlerAttacker].speedIV & 1) << 3)
-                 | ((gBattleMons[gBattlerAttacker].spAttackIV & 1) << 4)
-                 | ((gBattleMons[gBattlerAttacker].spDefenseIV & 1) << 5);
-
-    // Subtract 3 instead of 1 below because 2 types are excluded (TYPE_NORMAL and TYPE_MYSTERY)
-    // The final + 1 skips past Normal, and the following conditional skips TYPE_MYSTERY
-    u8 type = ((NUMBER_OF_MON_TYPES - 2) * typeBits) / 63 + 1;
-    if (type == TYPE_MYSTERY)
-        type = TYPE_FAIRY;
-    return type;
-}
-
 u8 AI_TypeCalc(u16 move, u16 targetSpecies, u8 targetAbility)
 {
     s32 i = 0;
@@ -1797,7 +1817,7 @@ u8 AI_TypeDisplay(u16 move, u16 targetSpecies, u8 targetAbility)
         return 0;
 
     if (move == MOVE_HIDDEN_POWER)
-        moveType = getHiddenPowerType();
+        moveType = getHiddenPowerType2();
     else
         moveType = DisplayMoveTypeChange(move);
 
@@ -1878,8 +1898,15 @@ static void Cmd_adjustnormaldamage(void)
         RecordItemEffectBattle(gBattlerTarget, holdEffect);
         gSpecialStatuses[gBattlerTarget].focusBanded = 1;
     }
-    if (gBattleMons[gBattlerTarget].ability == ABILITY_STURDY && (gBattleMons[gBattlerTarget].maxHP == gBattleMons[gBattlerTarget].hp) && (gSaveBlock1Ptr->tx_Mode_Sturdy == 1))
-        gProtectStructs[gBattlerTarget].endured = 1;
+    if (gBattleMons[gBattlerTarget].ability == ABILITY_STURDY 
+    && (gBattleMons[gBattlerTarget].maxHP == gBattleMons[gBattlerTarget].hp) 
+    && (gSaveBlock1Ptr->tx_Mode_Sturdy == 1))
+    {
+        if ((gBattleMoves[gCurrentMove].effect == EFFECT_DOUBLE_HIT))
+            gProtectStructs[gBattlerTarget].endured = 0;
+        else
+            gProtectStructs[gBattlerTarget].endured = 1;
+    }  
     if (!(gBattleMons[gBattlerTarget].status2 & STATUS2_SUBSTITUTE)
      && (gBattleMoves[gCurrentMove].effect == EFFECT_FALSE_SWIPE || gProtectStructs[gBattlerTarget].endured || gSpecialStatuses[gBattlerTarget].focusBanded)
      && gBattleMons[gBattlerTarget].hp <= gBattleMoveDamage)
@@ -1923,8 +1950,15 @@ static void Cmd_adjustnormaldamage2(void)
         RecordItemEffectBattle(gBattlerTarget, holdEffect);
         gSpecialStatuses[gBattlerTarget].focusBanded = 1;
     }
-    if (gBattleMons[gBattlerTarget].ability == ABILITY_STURDY && (gBattleMons[gBattlerTarget].maxHP == gBattleMons[gBattlerTarget].hp) && (gSaveBlock1Ptr->tx_Mode_Sturdy == 1))
-        gProtectStructs[gBattlerTarget].endured;
+    if (gBattleMons[gBattlerTarget].ability == ABILITY_STURDY 
+    && (gBattleMons[gBattlerTarget].maxHP == gBattleMons[gBattlerTarget].hp) 
+    && (gSaveBlock1Ptr->tx_Mode_Sturdy == 1))
+    {
+        if ((gBattleMoves[gCurrentMove].effect == EFFECT_DOUBLE_HIT))
+            gProtectStructs[gBattlerTarget].endured = 0;
+        else
+            gProtectStructs[gBattlerTarget].endured = 1;
+    }  
     if (!(gBattleMons[gBattlerTarget].status2 & STATUS2_SUBSTITUTE)
      && (gProtectStructs[gBattlerTarget].endured || gSpecialStatuses[gBattlerTarget].focusBanded)
      && gBattleMons[gBattlerTarget].hp <= gBattleMoveDamage)
@@ -3693,12 +3727,23 @@ static void Cmd_getexp(void)
                 // music change in wild battle after fainting a poke
                 if (!(gBattleTypeFlags & BATTLE_TYPE_TRAINER) && gBattleMons[0].hp != 0 && !gBattleStruct->wildVictorySong)
                 {
-                    if (GetMonData(&gEnemyParty[gBattlerPartyIndexes[gBattlerTarget]], MON_DATA_POKEBALL) == ITEM_NONE)
-                    {
-                        BattleStopLowHpSound();
+                    BattleStopLowHpSound();
+                    if ((gSaveBlock2Ptr->optionsWildBattleMusic == 0) || (gSaveBlock2Ptr->optionsWildBattleMusic == 1))
                         PlayBGM(MUS_VICTORY_WILD);
-                        gBattleStruct->wildVictorySong++;
+                    else if (gSaveBlock2Ptr->optionsWildBattleMusic == 2)
+                        PlayBGM(MUS_DP_VICTORY_WILD); 
+                    else if((gSaveBlock2Ptr->optionsWildBattleMusic == 3) || (gSaveBlock2Ptr->optionsWildBattleMusic == 4))
+                        PlayBGM(MUS_HG_VICTORY_WILD); 
+                    else if (gSaveBlock2Ptr->optionsWildBattleMusic == 5)
+                    {
+                        if((Random() % 3) == 1)
+                            PlayBGM(MUS_DP_VICTORY_WILD); 
+                        if((Random() % 3) == 2)
+                            PlayBGM(MUS_HG_VICTORY_WILD); 
+                        else
+                            PlayBGM(MUS_VICTORY_WILD); 
                     }
+                    gBattleStruct->wildVictorySong++;
                 }
 
                 if (GetMonData(&gPlayerParty[gBattleStruct->expGetterMonId], MON_DATA_HP) && !GetMonData(&gPlayerParty[gBattleStruct->expGetterMonId], MON_DATA_IS_EGG))
@@ -6303,8 +6348,15 @@ static void Cmd_adjustsetdamage(void)
         RecordItemEffectBattle(gBattlerTarget, holdEffect);
         gSpecialStatuses[gBattlerTarget].focusBanded = 1;
     }
-    if (gBattleMons[gBattlerTarget].ability == ABILITY_STURDY && (gBattleMons[gBattlerTarget].maxHP == gBattleMons[gBattlerTarget].hp) && (gSaveBlock1Ptr->tx_Mode_Sturdy == 1))
-        gProtectStructs[gBattlerTarget].endured;
+    if (gBattleMons[gBattlerTarget].ability == ABILITY_STURDY 
+    && (gBattleMons[gBattlerTarget].maxHP == gBattleMons[gBattlerTarget].hp) 
+    && (gSaveBlock1Ptr->tx_Mode_Sturdy == 1))
+    {
+        if ((gBattleMoves[gCurrentMove].effect == EFFECT_DOUBLE_HIT))
+            gProtectStructs[gBattlerTarget].endured = 0;
+        else
+            gProtectStructs[gBattlerTarget].endured = 1;
+    }  
     if (!(gBattleMons[gBattlerTarget].status2 & STATUS2_SUBSTITUTE)
      && (gBattleMoves[gCurrentMove].effect == EFFECT_FALSE_SWIPE || gProtectStructs[gBattlerTarget].endured || gSpecialStatuses[gBattlerTarget].focusBanded)
      && gBattleMons[gBattlerTarget].hp <= gBattleMoveDamage)
@@ -9298,11 +9350,13 @@ static void Cmd_hiddenpowercalc(void)
                  | ((gBattleMons[gBattlerAttacker].spAttackIV & 1) << 4)
                  | ((gBattleMons[gBattlerAttacker].spDefenseIV & 1) << 5);
 
-    gDynamicBasePower = (40 * powerBits) / 63 + 30;
+    gDynamicBasePower = 60;
 
-    // Subtract 3 instead of 1 below because 2 types are excluded (TYPE_NORMAL and TYPE_MYSTERY)
-    // The final + 1 skips past Normal, and the following conditional skips TYPE_MYSTERY
-    gBattleStruct->dynamicMoveType = ((NUMBER_OF_MON_TYPES - 2) * typeBits) / 63 + 1;
+    // Subtract 2 instead of 1 below because 3 types are excluded (TYPE_NORMAL and TYPE_MYSTERY)
+    // The number goes from 0 to 16 (19 - 2), from TYPE_NORMAL to TYPE_DRAGON.
+    // The final + 1 skips past Normal, and allows getting to TYPE_DARK.
+    // If the number equals TYPE_MISTERY, the typing changes to TYPE_FAIRY.
+    gBattleStruct->dynamicMoveType = ((NUMBER_OF_MON_TYPES - 3) * typeBits) / 63 + 1;
     if (gBattleStruct->dynamicMoveType == TYPE_MYSTERY)
         gBattleStruct->dynamicMoveType = TYPE_FAIRY;
     gBattleStruct->dynamicMoveType |= F_DYNAMIC_TYPE_IGNORE_PHYSICALITY | F_DYNAMIC_TYPE_SET;

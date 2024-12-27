@@ -662,10 +662,21 @@ static void PlayerNotOnBikeMoving(u8 direction, u16 heldKeys)
         // same speed as running
         //PlayerWalkFast(direction);
         //return;
-        if (heldKeys & B_BUTTON)
-            PlayerWalkFaster(direction);
+        if (gSaveBlock2Ptr->optionsAutorunSurf == 1)
+        {            
+            if (heldKeys & B_BUTTON)
+                PlayerWalkFaster(direction);
+            else
+                PlayerWalkFast(direction);
+        }
         else
-            PlayerWalkFast(direction);
+        {            
+            if (heldKeys & B_BUTTON)
+                PlayerWalkFast(direction);
+            else
+                PlayerWalkFaster(direction);
+        }
+
     }
 
     if (!(gPlayerAvatar.flags & PLAYER_AVATAR_FLAG_UNDERWATER) && IsPlayerTryingToRun(heldKeys) && FlagGet(FLAG_SYS_B_DASH)
@@ -688,6 +699,23 @@ static void PlayerNotOnBikeMoving(u8 direction, u16 heldKeys)
             gPlayerAvatar.flags |= PLAYER_AVATAR_FLAG_DASH;
         }
         return;
+    }
+    if (gPlayerAvatar.flags & PLAYER_AVATAR_FLAG_UNDERWATER)
+    {
+        if (gSaveBlock2Ptr->optionsAutorunDive == 1)
+        {            
+            if (heldKeys & B_BUTTON)
+                PlayerWalkFast(direction);
+            else
+                PlayerWalkNormal(direction);
+        }
+        else
+        {            
+            if (heldKeys & B_BUTTON)
+                PlayerWalkNormal(direction);
+            else
+                PlayerWalkFast(direction);
+        }
     }
     else
     {
@@ -2355,6 +2383,8 @@ bool8 ObjectMovingOnRockStairs(struct ObjectEvent *objectEvent, u8 direction)
             if (PlayerHasFollower() && (objectEvent->isPlayer || objectEvent->localId == GetFollowerLocalId()))
                 return FALSE;
         #endif
+        if (FlagGet(FLAG_NO_SLOW_STAIR_MOVEMENT) == 1)
+            return FALSE;
         
         switch (direction)
         {

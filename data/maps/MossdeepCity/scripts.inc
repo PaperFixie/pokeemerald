@@ -40,15 +40,17 @@ MossdeepCity_EventScript_Evo2::
 MossdeepCity_EventScript_Evo2_Text:
 	.string "My wife loves the POKéMON EEVEE.\p"
 	.string "She knows all the ways they can\n"
-	.string "evolve. Like, when HOLDING a\l"
-	.string "NEVER MELT ICE at night, or when\l"
-	.string "holding a MIRACLE SEED during the day.\p"
+	.string "evolve. Like, when HOLDING a WATER\l"
+	.string "STONE, or a LEAF STONE.\p"
+	.string "Yes, HOLDING, not using!\n"
+	.string "Did you know about it? I didn't.\p"
 	.string "Or being HAPPY during day or night.\p"
-	.string "Or being cute! Try using a\n"
-	.string "FAIRY TYPE move.\p"
+	.string "Or being cute whilst using a\n"
+	.string "FAIRY TYPE move!\p"
 	.string "…\p"
-	.string "I think I'll try to get an EEVEE\n"
-	.string "for her… She's gonna love it.$"
+	.string "Do you know where EEVEE are?\n"
+	.string "Maybe I should capture one for her.\p"
+	.string "She's gonna love it!$"
 
 MossdeepCity_EventScript_PokefanF::
 	lock
@@ -101,6 +103,7 @@ MossdeepCity_EventScript_WhiteRock::
 	msgbox MossdeepCity_Text_ItsAWhiteRock, MSGBOX_SIGN
 	closemessage
 	goto_if_set FLAG_JIRACHI, MossdeepCity_EventScript_WhiteRockEnd
+	goto_if_unset FLAG_EXTRA_LEGENDARIES, MossdeepCity_EventScript_WhiteRockEnd
 	goto_if_set FLAG_SYS_GAME_CLEAR, MossdeepCity_EventScript_Jirachi
 	end
 

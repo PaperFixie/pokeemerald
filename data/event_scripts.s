@@ -41,6 +41,7 @@
 #include "constants/moves.h"
 #include "constants/party_menu.h"
 #include "constants/pokemon.h"
+#include "constants/pokemon_size_record.h"
 #include "constants/roulette.h"
 #include "constants/script_menu.h"
 #include "constants/secret_bases.h"
@@ -1081,3 +1082,27 @@ Common_EventScript_LegendaryFlewAway::
 	.include "data/maps/NewMauville_Inside_Modern/scripts.inc"
 
 	.include "data/maps/MagmaHideout_3F_1R_Modern/scripts.inc"
+
+	.include "data/maps/PetalburgWoods_Old/scripts.inc"
+
+	.include "data/maps/CeruleanCave1/scripts.inc"
+
+	.include "data/maps/CeruleanCave2/scripts.inc"
+
+	.include "data/maps/CeruleanCave3/scripts.inc"
+
+	.include "data/maps/AlteringCave_Mewtwo/scripts.inc"
+
+	.include "data/maps/VictoryRoad_Moltres/scripts.inc"
+
+	.include "data/maps/VictoryRoad_Moltres2/scripts.inc"
+
+	.include "data/maps/VictoryRoad_B2F_Modern/scripts.inc"
+
+	.include "data/maps/MeteorFalls_B1F_2R_Modern/scripts.inc"
+
+	.include "data/maps/MeteorFalls_Articuno/scripts.inc"
+
+	.include "data/maps/ScorchedSlab_Zapdos/scripts.inc"
+
+	.include "data/maps/ScorchedSlab_Modern/scripts.inc"

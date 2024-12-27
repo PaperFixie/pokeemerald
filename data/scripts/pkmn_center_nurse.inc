@@ -56,7 +56,7 @@ EventScript_PkmnCenterNurse_IllTakeYourPkmn2::
 	return
 
 EventScript_PkmnCenterNurse_TakeAndHealPkmn::
-	applymovement VAR_0x800B, Common_Movement_WalkInPlaceFasterLeft @ TODO: Make follower disappear here
+	applymovement VAR_0x800B, Movement_PkmnCenterNurse_Turn
 	waitmovement 0
 	dofieldeffect FLDEFF_POKECENTER_HEAL
 	waitfieldeffect FLDEFF_POKECENTER_HEAL
@@ -142,6 +142,10 @@ EventScript_PkmnCenterNurse_GoldCardHealPkmn::
 	goto EventScript_PkmnCenterNurse_HealPkmn
 	end
 
+Movement_PkmnCenterNurse_Turn:
+	walk_in_place_faster_left
+	step_end
+
 Movement_PkmnCenterNurse_Bow:
 	nurse_joy_bow
 	delay_4
@@ -161,6 +165,8 @@ EventScript_PkmnCenterNurse_HealPkmnFaster::
 EventScript_PkmnCenterNurse_PlayerTurnFast::
 	special HealPlayerParty
   	callnative UpdateFollowingPokemon
+	waitse
+	playse SE_M_MORNING_SUN
 	applymovement OBJ_EVENT_ID_PLAYER, Common_Movement_FaceDown
 	waitmovement 0
 	release

@@ -546,6 +546,8 @@ struct SaveBlock2
              u16 optionsSkipIntro:1;
              u16 optionsLRtoRun:1;
              u16 optionsBallPrompt:1;
+             u16 optionsUnitSystem:1;
+             u16 optionsMusicOnOff:1;
     /*0x18*/ struct Pokedex pokedex;
     /*0x90*/ u8 filler_90[0x8];
     /*0x98*/ struct Time localTimeOffset;
@@ -562,6 +564,10 @@ struct SaveBlock2
     /*0x624*/ u16 contestLinkResults[CONTEST_CATEGORIES_COUNT][CONTESTANT_COUNT];
     /*0x64C*/ struct BattleFrontier frontier;
               struct Time fakeRTC;
+              u16 optionsNewBackgrounds:1;
+              u16 optionsRunType:3;
+              u16 optionsAutorunSurf:1;
+              u16 optionsAutorunDive:1;
 }; // sizeof=0xF2C
 
 extern struct SaveBlock2 *gSaveBlock2Ptr;
@@ -1144,7 +1150,7 @@ struct SaveBlock1
         u8 tx_Challenges_MaxPartyIVs:2;
         u8 tx_Mode_InfiniteTMs:1;
         u8 tx_Mode_PoisonSurvive:1;
-        u8 optionsEasierFeebas:1; //will be deleted
+        u8 tx_Features_EasierFeebas:1;
         u8 tx_Features_PkmnDeath:1;
         u8 tx_Challenges_PCHeal:1;
         u8 tx_Features_RTCType:1;
@@ -1162,6 +1168,7 @@ struct SaveBlock1
         u8 tx_Mode_Sturdy:1;
         u8 tx_Mode_Modern_Moves:1;
         u8 tx_Mode_Legendary_Abilities:1;
+        u8 tx_Mode_New_Legendaries:1;
 };
 
 extern struct SaveBlock1* gSaveBlock1Ptr;

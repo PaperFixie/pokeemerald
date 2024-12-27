@@ -406,6 +406,18 @@
 #define MAP_SHOAL_CAVE_LOW_TIDE_ICE_ROOM_MODERN      (111 | (24 << 8))
 #define MAP_NEW_MAUVILLE_INSIDE_MODERN               (112 | (24 << 8))
 #define MAP_MAGMA_HIDEOUT_3F_1R_MODERN               (113 | (24 << 8))
+#define MAP_PETALBURG_WOODS_OLD                      (114 | (24 << 8))
+#define MAP_CERULEAN_CAVE1                           (115 | (24 << 8))
+#define MAP_CERULEAN_CAVE2                           (116 | (24 << 8))
+#define MAP_CERULEAN_CAVE3                           (117 | (24 << 8))
+#define MAP_ALTERING_CAVE_MEWTWO                     (118 | (24 << 8))
+#define MAP_VICTORY_ROAD_MOLTRES                     (119 | (24 << 8))
+#define MAP_VICTORY_ROAD_MOLTRES2                    (120 | (24 << 8))
+#define MAP_VICTORY_ROAD_B2F_MODERN                  (121 | (24 << 8))
+#define MAP_METEOR_FALLS_B1F_2R_MODERN               (122 | (24 << 8))
+#define MAP_METEOR_FALLS_ARTICUNO                    (123 | (24 << 8))
+#define MAP_SCORCHED_SLAB_ZAPDOS                     (124 | (24 << 8))
+#define MAP_SCORCHED_SLAB_MODERN                     (125 | (24 << 8))
 
 // gMapGroup_IndoorDynamic
 #define MAP_SECRET_BASE_RED_CAVE1    (0 | (25 << 8))
@@ -599,6 +611,6 @@
 
 #define MAP_GROUPS_COUNT 34
 
-// static const u8 MAP_GROUP_COUNT[] = {57, 5, 5, 6, 7, 8, 9, 7, 7, 14, 8, 17, 10, 23, 13, 15, 15, 2, 2, 2, 3, 1, 1, 1, 114, 61, 89, 2, 1, 13, 1, 1, 3, 1, 0};
+// static const u8 MAP_GROUP_COUNT[] = {57, 5, 5, 6, 7, 8, 9, 7, 7, 14, 8, 17, 10, 23, 13, 15, 15, 2, 2, 2, 3, 1, 1, 1, 126, 61, 89, 2, 1, 13, 1, 1, 3, 1, 0};
 
 #endif // GUARD_CONSTANTS_MAP_GROUPS_H

@@ -1694,10 +1694,10 @@
     {
       "id": "LAYOUT_UNUSED_CAVE1",
       "name": "UnusedCave1_Layout",
-      "width": 1,
-      "height": 1,
-      "primary_tileset": "gTileset_General",
-      "secondary_tileset": "gTileset_Cave",
+      "width": 9,
+      "height": 10,
+      "primary_tileset": "gTileset_Building",
+      "secondary_tileset": "gTileset_BattleFrontier",
       "border_filepath": "data/layouts/UnusedCave1/border.bin",
       "blockdata_filepath": "data/layouts/UnusedCave1/map.bin"
     },
@@ -4470,6 +4470,126 @@
       "secondary_tileset": "gTileset_Lavaridge",
       "border_filepath": "data/layouts/MagmaHideout_3F_1R_Modern/border.bin",
       "blockdata_filepath": "data/layouts/MagmaHideout_3F_1R_Modern/map.bin"
+    },
+    {
+      "id": "LAYOUT_PETALBURG_WOODS_OLD",
+      "name": "PetalburgWoods_Old_Layout",
+      "width": 54,
+      "height": 44,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Rustboro",
+      "border_filepath": "data/layouts/PetalburgWoods_Old/border.bin",
+      "blockdata_filepath": "data/layouts/PetalburgWoods_Old/map.bin"
+    },
+    {
+      "id": "LAYOUT_CERULEAN_CAVE1",
+      "name": "CeruleanCave1_Layout",
+      "width": 39,
+      "height": 23,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Cave",
+      "border_filepath": "data/layouts/CeruleanCave1/border.bin",
+      "blockdata_filepath": "data/layouts/CeruleanCave1/map.bin"
+    },
+    {
+      "id": "LAYOUT_CERULEAN_CAVE2",
+      "name": "CeruleanCave2_Layout",
+      "width": 39,
+      "height": 23,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Cave",
+      "border_filepath": "data/layouts/CeruleanCave2/border.bin",
+      "blockdata_filepath": "data/layouts/CeruleanCave2/map.bin"
+    },
+    {
+      "id": "LAYOUT_CERULEAN_CAVE3",
+      "name": "CeruleanCave3_Layout",
+      "width": 40,
+      "height": 23,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Cave",
+      "border_filepath": "data/layouts/CeruleanCave3/border.bin",
+      "blockdata_filepath": "data/layouts/CeruleanCave3/map.bin"
+    },
+    {
+      "id": "LAYOUT_ALTERING_CAVE_MEWTWO",
+      "name": "AlteringCave_Mewtwo_Layout",
+      "width": 32,
+      "height": 24,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Cave",
+      "border_filepath": "data/layouts/AlteringCave_Mewtwo/border.bin",
+      "blockdata_filepath": "data/layouts/AlteringCave_Mewtwo/map.bin"
+    },
+    {
+      "id": "LAYOUT_VICTORY_ROAD_MOLTRES",
+      "name": "VictoryRoad_Moltres_Layout",
+      "width": 20,
+      "height": 20,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Cave",
+      "border_filepath": "data/layouts/VictoryRoad_Moltres/border.bin",
+      "blockdata_filepath": "data/layouts/VictoryRoad_Moltres/map.bin"
+    },
+    {
+      "id": "LAYOUT_VICTORY_ROAD_MOLTRES2",
+      "name": "VictoryRoad_Moltres2_Layout",
+      "width": 20,
+      "height": 20,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Cave",
+      "border_filepath": "data/layouts/VictoryRoad_Moltres2/border.bin",
+      "blockdata_filepath": "data/layouts/VictoryRoad_Moltres2/map.bin"
+    },
+    {
+      "id": "LAYOUT_VICTORY_ROAD_B2F_MODERN",
+      "name": "VictoryRoad_B2F_Modern_Layout",
+      "width": 46,
+      "height": 31,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Cave",
+      "border_filepath": "data/layouts/VictoryRoad_B2F_Modern/border.bin",
+      "blockdata_filepath": "data/layouts/VictoryRoad_B2F_Modern/map.bin"
+    },
+    {
+      "id": "LAYOUT_METEOR_FALLS_B1F_2R_MODERN",
+      "name": "MeteorFalls_B1F_2R_Modern_Layout",
+      "width": 11,
+      "height": 18,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_MeteorFalls",
+      "border_filepath": "data/layouts/MeteorFalls_B1F_2R_Modern/border.bin",
+      "blockdata_filepath": "data/layouts/MeteorFalls_B1F_2R_Modern/map.bin"
+    },
+    {
+      "id": "LAYOUT_METEOR_FALLS_ARTICUNO",
+      "name": "MeteorFalls_Articuno_Layout",
+      "width": 20,
+      "height": 20,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Pacifidlog",
+      "border_filepath": "data/layouts/MeteorFalls_Articuno/border.bin",
+      "blockdata_filepath": "data/layouts/MeteorFalls_Articuno/map.bin"
+    },
+    {
+      "id": "LAYOUT_SCORCHED_SLAB_ZAPDOS",
+      "name": "ScorchedSlab_Zapdos_Layout",
+      "width": 15,
+      "height": 20,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Cave",
+      "border_filepath": "data/layouts/ScorchedSlab_Zapdos/border.bin",
+      "blockdata_filepath": "data/layouts/ScorchedSlab_Zapdos/map.bin"
+    },
+    {
+      "id": "LAYOUT_SCORCHED_SLAB_MODERN",
+      "name": "ScorchedSlab_Modern_Layout",
+      "width": 15,
+      "height": 20,
+      "primary_tileset": "gTileset_General",
+      "secondary_tileset": "gTileset_Cave",
+      "border_filepath": "data/layouts/ScorchedSlab_Modern/border.bin",
+      "blockdata_filepath": "data/layouts/ScorchedSlab_Modern/map.bin"
     }
   ]
 }

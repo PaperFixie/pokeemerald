@@ -43,6 +43,7 @@ enum
     MENUITEM_MODE_MODERN_TYPES,
     MENUITEM_MODE_FAIRY_TYPES,
     MENUITEM_MODE_NEW_STATS,
+    MENUITEM_MODE_NEW_LEGENDARIES,
     MENUITEM_MODE_LEGENDARY_ABILITIES,
     MENUITEM_MODE_MODERN_MOVES,
     MENUITEM_MODE_MINTS,
@@ -62,7 +63,7 @@ enum
     MENUITEM_FEATURES_ITEM_DROP,
     MENUITEM_FEATURES_UNLIMITED_WT,
     MENUITEM_FEATURES_PKMN_DEATH,
-    MENUITEM_FEATURES_EASY_FEEBAS, //will be deleted
+    MENUITEM_FEATURES_EASY_FEEBAS,
     MENUITEM_FEATURES_NEXT,
     MENUITEM_FEATURES_COUNT,
 };
@@ -192,8 +193,8 @@ static const struct BgTemplate sOptionMenuBgTemplates[] =
 
 struct OptionMenu
 {
-    u8 submenu;
-    u16 sel_mode[MENUITEM_MODE_COUNT];
+    u16 submenu;
+    u8 sel_mode[MENUITEM_MODE_COUNT];
     u8 sel_features[MENUITEM_FEATURES_COUNT];
     u8 sel_randomizer[MENUITEM_RANDOM_COUNT];
     u8 sel_nuzlocke[MENUITEM_NUZLOCKE_COUNT];
@@ -311,6 +312,7 @@ static void DrawChoices_Mode_New_Stats(int selection, int y);
 static void DrawChoices_Mode_Sturdy(int selection, int y);
 static void DrawChoices_Mode_Modern_Moves(int selection, int y);
 static void DrawChoices_Mode_Legendary_Abilities(int selection, int y);
+static void DrawChoices_Mode_New_Legendaries(int selection, int y);
 
 static void PrintCurrentSelections(void);
 
@@ -356,6 +358,7 @@ struct // MENU_MODE
     [MENUITEM_MODE_NEW_CITRUS]            = {DrawChoices_Mode_New_Citrus,           ProcessInput_Options_Two},
     [MENUITEM_MODE_MODERN_MOVES]          = {DrawChoices_Mode_Modern_Moves,         ProcessInput_Options_Two},
     [MENUITEM_MODE_LEGENDARY_ABILITIES]   = {DrawChoices_Mode_Legendary_Abilities,  ProcessInput_Options_Two},
+    [MENUITEM_MODE_NEW_LEGENDARIES]       = {DrawChoices_Mode_New_Legendaries,      ProcessInput_Options_Two},
     [MENUITEM_MODE_NEXT]                  = {NULL, NULL},
 };
 
@@ -455,13 +458,14 @@ static const u8 sText_InfiniteTMs[]         = _("REUSABLE TMS");
 static const u8 sText_Poison[]              = _("SURVIVE POISON");
 static const u8 sText_Synchronize[]         = _("SYNCHRONIZE");
 static const u8 sText_Mints[]               = _("NATURE MINTS");
-static const u8 sText_NewCitrus[]           = _("CITRUS BERRY");
+static const u8 sText_NewCitrus[]           = _("SITRUS BERRY");
 static const u8 sText_ModernTypes[]         = _("MODERN TYPING");
 static const u8 sText_FairyTypes[]          = _("ADD FAIRY TYPE");
 static const u8 sText_NewStats[]            = _("BETTER STATS");
 static const u8 sText_Sturdy[]              = _("STURDY");
 static const u8 sText_Modern_Moves[]        = _("MODERN MOVEPOOL");
 static const u8 sText_Legendary_Abilities[] = _("LEGEN. ABILITIES");
+static const u8 sText_New_Legendaries[]     = _("EXTRA LEGEND.");
 static const u8 sText_Next[]                = _("NEXT");
 // Menu left side option names text
 static const u8 *const sOptionMenuItemsNamesMode[MENUITEM_MODE_COUNT] =
@@ -479,6 +483,7 @@ static const u8 *const sOptionMenuItemsNamesMode[MENUITEM_MODE_COUNT] =
     [MENUITEM_MODE_NEW_STATS]                 = sText_NewStats,
     [MENUITEM_MODE_MODERN_MOVES]              = sText_Modern_Moves,
     [MENUITEM_MODE_LEGENDARY_ABILITIES]       = sText_Legendary_Abilities,
+    [MENUITEM_MODE_NEW_LEGENDARIES]           = sText_New_Legendaries,
     [MENUITEM_MODE_NEXT]                      = sText_Next,
 };
 
@@ -634,6 +639,7 @@ static bool8 CheckConditions(int selection)
             case MENUITEM_MODE_STURDY:                    return sOptions->sel_mode[MENUITEM_MODE_CLASSIC_MODERN] == 2;
             case MENUITEM_MODE_MODERN_MOVES:              return sOptions->sel_mode[MENUITEM_MODE_CLASSIC_MODERN] == 2;
             case MENUITEM_MODE_LEGENDARY_ABILITIES:       return sOptions->sel_mode[MENUITEM_MODE_CLASSIC_MODERN] == 2;
+            case MENUITEM_MODE_NEW_LEGENDARIES:           return sOptions->sel_mode[MENUITEM_MODE_CLASSIC_MODERN] == 2;
         default:       return FALSE;
         }
     case MENU_FEATURES:
@@ -716,12 +722,12 @@ static const u8 sText_Description_Mode_InfiniteTMs_On[]           = _("TMs are r
 static const u8 sText_Description_Mode_InfiniteTMs_Off[]          = _("TMs are not reusable.\nLike in the original.");
 static const u8 sText_Description_Mode_SurvivePoison_On[]         = _("Your {PKMN} will survive the POISON\nstatus with 1HP.");
 static const u8 sText_Description_Mode_SurvivePoison_Off[]        = _("Your {PKMN} will faint if they are\nPOISONED.");
-static const u8 sText_Description_Mode_Synchronize_Old[]          = _("SYNCHRONIZE works as in GEN III.\n50% to copy nature.");
+static const u8 sText_Description_Mode_Synchronize_Old[]          = _("SYNCHRONIZE works as in GEN III.\n50% chance to copy nature.");
 static const u8 sText_Description_Mode_Synchronize_New[]          = _("SYNCHRONIZE works as in GEN VIII+.\n100% chance to copy nature.");
-static const u8 sText_Description_Mode_Mints_Off[]                = _("Mints are not availabe ingame.");
+static const u8 sText_Description_Mode_Mints_Off[]                = _("Mints are not availabe ingame until\nfinishing the game.");
 static const u8 sText_Description_Mode_Mints_On[]                 = _("Mints can be bought at PRETTY PETAL\nFLOWER SHOP after the 4th medal.");
-static const u8 sText_Description_Mode_New_Citrus_Off[]           = _("CITRUS BERRY restores 30HP.\nSame as GEN III.");
-static const u8 sText_Description_Mode_New_Citrus_On[]            = _("CITRUS BERRY restores 25% of\ntotal HP. Same as GEN IV and up.");
+static const u8 sText_Description_Mode_New_Citrus_Off[]           = _("SITRUS BERRY restores 30HP.\nSame as GEN III.");
+static const u8 sText_Description_Mode_New_Citrus_On[]            = _("SITRUS BERRY restores 25% of\ntotal HP. Same as GEN IV and up.");
 static const u8 sText_Description_Mode_Modern_Types_Off[]         = _("Original {PKMN} typings. Doesn't include\n{PKMN} that got added to FAIRY in GEN VI.");
 static const u8 sText_Description_Mode_Modern_Types_On[]          = _("{PKMN} have modified typings\nto make them more viable.");
 static const u8 sText_Description_Mode_Fairy_Types_Off[]          = _("FAIRY TYPE isn't added to {PKMN} \nthat got it in GEN VI.");
@@ -729,11 +735,13 @@ static const u8 sText_Description_Mode_Fairy_Types_On[]           = _("FAIRY TYP
 static const u8 sText_Description_Mode_New_Stats_Off[]            = _("Original GEN III {PKMN} stats.");
 static const u8 sText_Description_Mode_New_Stats_On[]             = _("Modified stats to make certain\n{PKMN} more viable.");
 static const u8 sText_Description_Mode_Sturdy_Off[]               = _("STURDY works as in GEN III. Only\nnegates OHKO moves (GUILLOTINE, etc.)");
-static const u8 sText_Description_Mode_Sturdy_On[]                = _("STURDY works as in GEN V+.\n{PKMN} survive letal hits with 1HP.");
+static const u8 sText_Description_Mode_Sturdy_On[]                = _("STURDY works as in GEN V+.\n{PKMN} survive lethal hits with 1HP.");
 static const u8 sText_Description_Mode_Modern_Moves_Off[]         = _("No new MOVES, and original MOVEPOOL\nfor all {PKMN}.");
 static const u8 sText_Description_Mode_Modern_Moves_On[]          = _("13 new MOVES, with improved MOVEPOOLS\nfor all {PKMN}.");
 static const u8 sText_Description_Mode_Leg_Abilities_Off[]        = _("PRESSURE stays as the main\nability of some legendaries.");
 static const u8 sText_Description_Mode_Leg_Abilities_On[]         = _("Legendaries have PRESSURE changed\nfor a better ability.");
+static const u8 sText_Description_Mode_New_Legendaries_Off[]      = _("No extra legendaries are added.");
+static const u8 sText_Description_Mode_New_Legendaries_On[]       = _("Extra legendaries from GEN I and II\nare added via ingame events.");
 static const u8 sText_Description_Mode_Next[]                     = _("Continue to Features options.");
 
 static const u8 *const sOptionMenuItemDescriptionsMode[MENUITEM_MODE_COUNT][5] =
@@ -751,6 +759,7 @@ static const u8 *const sOptionMenuItemDescriptionsMode[MENUITEM_MODE_COUNT][5] =
     [MENUITEM_MODE_STURDY]                = {sText_Description_Mode_Sturdy_Off,             sText_Description_Mode_Sturdy_On,             sText_Empty,                                        sText_Empty,                                        sText_Empty},
     [MENUITEM_MODE_MODERN_MOVES]          = {sText_Description_Mode_Modern_Moves_Off,       sText_Description_Mode_Modern_Moves_On,       sText_Empty,                                        sText_Empty,                                        sText_Empty},
     [MENUITEM_MODE_LEGENDARY_ABILITIES]   = {sText_Description_Mode_Leg_Abilities_Off,      sText_Description_Mode_Leg_Abilities_On,      sText_Empty,                                        sText_Empty,                                        sText_Empty},
+    [MENUITEM_MODE_NEW_LEGENDARIES]       = {sText_Description_Mode_New_Legendaries_Off,    sText_Description_Mode_New_Legendaries_On,    sText_Empty,                                        sText_Empty,                                        sText_Empty},
     [MENUITEM_MODE_NEXT]                  = {sText_Description_Mode_Next,                   sText_Empty,                                  sText_Empty,                                        sText_Empty,                                        sText_Empty},
 };
 
@@ -842,7 +851,7 @@ static const u8 sText_Description_Nuzlocke_ShinyClause_Off[]    = _("The player 
 static const u8 sText_Description_Nuzlocke_ShinyClause_On[]     = _("The player can always catch shiny\nPOKéMON. {COLOR 7}{COLOR 8}RECOMMENDED!");
 static const u8 sText_Description_Nuzlocke_Nicknaming_Off[]     = _("Nicknames are optional.");
 static const u8 sText_Description_Nuzlocke_Nicknaming_On[]      = _("Forces the player to nickname every\nPOKéMON. {COLOR 7}{COLOR 8}RECOMMENDED!");
-static const u8 sText_Description_Nuzlocke_Deletion_Cemetery[]  = _("Fainted POKéMON are send to the PC\nafter battle and can't be retrieved.");
+static const u8 sText_Description_Nuzlocke_Deletion_Cemetery[]  = _("Fainted POKéMON are sent to the PC\nafter battle and can't be retrieved.");
 static const u8 sText_Description_Nuzlocke_Deletion_Deletion[]  = _("Fainted POKéMON are {COLOR 7}{COLOR 8}released{COLOR 1}{COLOR 2} after\nbattle!");
 static const u8 sText_Description_Nuzlocke_Next[]                   = _("Continue to difficulty options.");
 static const u8 *const sOptionMenuItemDescriptionsNuzlocke[MENUITEM_NUZLOCKE_COUNT][4] =
@@ -860,7 +869,7 @@ static const u8 sText_Description_Difficulty_LevelCap_Base[]            = _("No 
 static const u8 sText_Description_Difficulty_LevelCap_Normal[]          = _("Maximum level is based on the\nnext gym's highest POKéMON level.");
 static const u8 sText_Description_Difficulty_LevelCap_Hard[]            = _("Maximum level is based on the\nnext gym's {COLOR 7}{COLOR 8}lowest POKéMON level.");
 static const u8 sText_Description_Difficulty_ExpMultiplier_1_0[]        = _("POKéMON gain normal EXP. Points.");
-static const u8 sText_Description_Difficulty_ExpMultiplier_1_5[]        = _("POKéMON 50 percent more EXP. Points!");
+static const u8 sText_Description_Difficulty_ExpMultiplier_1_5[]        = _("POKéMON gain 50 percent more EXP.\nPoints!");
 static const u8 sText_Description_Difficulty_ExpMultiplier_2_0[]        = _("POKéMON gain double EXP. Points!");
 static const u8 sText_Description_Difficulty_ExpMultiplier_0_0[]        = _("POKéMON gain {COLOR 7}{COLOR 8}ZERO EXP. Points!!!");
 static const u8 sText_Description_Difficulty_Items_Player_Yes[]         = _("The player can use battle items.");
@@ -943,6 +952,7 @@ static const u8 *const sOptionMenuItemDescriptionsDisabledMode[MENUITEM_MODE_COU
     [MENUITEM_MODE_MODERN_MOVES]          = sText_Empty,
     [MENUITEM_MODE_NEXT]                  = sText_Empty,
     [MENUITEM_MODE_LEGENDARY_ABILITIES]   = sText_Empty,
+    [MENUITEM_MODE_NEW_LEGENDARIES]       = sText_Empty,
 };
 
 // Disabled descriptions
@@ -1354,11 +1364,12 @@ void CB2_InitTxRandomizerChallengesMenu(void)
         gSaveBlock1Ptr->tx_Mode_Sturdy                      = TX_MODE_STURDY;
         gSaveBlock1Ptr->tx_Mode_Modern_Moves                = TX_MODE_MODERN_MOVES;
         gSaveBlock1Ptr->tx_Mode_Legendary_Abilities         = TX_MODE_LEGENDARY_ABILITIES;
+        gSaveBlock1Ptr->tx_Mode_New_Legendaries             = TX_MODE_NEW_LEGENDARIES;
 
         gSaveBlock1Ptr->tx_Features_RTCType                 = TX_FEATURES_RTC_TYPE;
         gSaveBlock1Ptr->tx_Features_ShinyChance             = TX_FEATURES_SHINY_CHANCE;
         gSaveBlock1Ptr->tx_Features_WildMonDropItems        = TX_FEATURES_ITEM_DROP;
-        gSaveBlock1Ptr->optionsEasierFeebas                 = TX_FEATURES_EASIER_FEEBAS;
+        gSaveBlock1Ptr->tx_Features_EasierFeebas            = TX_FEATURES_EASIER_FEEBAS;
         gSaveBlock1Ptr->tx_Features_PkmnDeath               = TX_FEATURES_PKMN_DEATH;
         gSaveBlock1Ptr->tx_Features_Unlimited_WT            = TX_FEATURES_UNLIMITED_WT;
 
@@ -1421,11 +1432,12 @@ void CB2_InitTxRandomizerChallengesMenu(void)
         sOptions->sel_mode[MENUITEM_MODE_STURDY]                 = gSaveBlock1Ptr->tx_Mode_Sturdy;
         sOptions->sel_mode[MENUITEM_MODE_MODERN_MOVES]           = gSaveBlock1Ptr->tx_Mode_Modern_Moves;
         sOptions->sel_mode[MENUITEM_MODE_LEGENDARY_ABILITIES]    = gSaveBlock1Ptr->tx_Mode_Legendary_Abilities;
+        sOptions->sel_mode[MENUITEM_MODE_NEW_LEGENDARIES]        = gSaveBlock1Ptr->tx_Mode_New_Legendaries;
         //MENU FEATURES
         sOptions->sel_features[MENUITEM_FEATURES_RTC_TYPE]               = gSaveBlock1Ptr->tx_Features_RTCType;
         sOptions->sel_features[MENUITEM_FEATURES_SHINY_CHANCE]           = gSaveBlock1Ptr->tx_Features_ShinyChance;
         sOptions->sel_features[MENUITEM_FEATURES_ITEM_DROP]              = gSaveBlock1Ptr->tx_Features_WildMonDropItems;
-        sOptions->sel_features[MENUITEM_FEATURES_EASY_FEEBAS]            = gSaveBlock1Ptr->optionsEasierFeebas;
+        sOptions->sel_features[MENUITEM_FEATURES_EASY_FEEBAS]            = gSaveBlock1Ptr->tx_Features_EasierFeebas;
         sOptions->sel_features[MENUITEM_FEATURES_PKMN_DEATH]             = gSaveBlock1Ptr->tx_Features_PkmnDeath;
         sOptions->sel_features[MENUITEM_FEATURES_UNLIMITED_WT]           = gSaveBlock1Ptr->tx_Features_Unlimited_WT;
         
@@ -1538,7 +1550,8 @@ static void Task_OptionMenuFadeIn(u8 taskId)
 static void Task_OptionMenuProcessInput(u8 taskId)
 {
     int i, scrollCount = 0, itemsToRedraw;
-    if (JOY_NEW(A_BUTTON))
+    // Treat the L BUTTON as an L BUTTON even if the user has L=A set.
+    if (JOY_NEW(A_BUTTON) && !(JOY_NEW(L_BUTTON)))
     {
         if (sOptions->menuCursor[sOptions->submenu] == MenuItemCancel())
         {
@@ -1765,11 +1778,12 @@ void SaveData_TxRandomizerAndChallenges(void)
     gSaveBlock1Ptr->tx_Mode_Sturdy                      = sOptions->sel_mode[MENUITEM_MODE_STURDY]; 
     gSaveBlock1Ptr->tx_Mode_Modern_Moves                = sOptions->sel_mode[MENUITEM_MODE_MODERN_MOVES]; 
     gSaveBlock1Ptr->tx_Mode_Legendary_Abilities         = sOptions->sel_mode[MENUITEM_MODE_LEGENDARY_ABILITIES]; 
+    gSaveBlock1Ptr->tx_Mode_New_Legendaries             = sOptions->sel_mode[MENUITEM_MODE_NEW_LEGENDARIES]; 
     //MENU FEAUTRES
     gSaveBlock1Ptr->tx_Features_RTCType                     = sOptions->sel_features[MENUITEM_FEATURES_RTC_TYPE]; 
     gSaveBlock1Ptr->tx_Features_ShinyChance                 = sOptions->sel_features[MENUITEM_FEATURES_SHINY_CHANCE]; 
     gSaveBlock1Ptr->tx_Features_WildMonDropItems            = sOptions->sel_features[MENUITEM_FEATURES_ITEM_DROP]; 
-    gSaveBlock1Ptr->optionsEasierFeebas                     = sOptions->sel_features[MENUITEM_FEATURES_EASY_FEEBAS]; 
+    gSaveBlock1Ptr->tx_Features_EasierFeebas                = sOptions->sel_features[MENUITEM_FEATURES_EASY_FEEBAS]; 
     gSaveBlock1Ptr->tx_Features_PkmnDeath                   = sOptions->sel_features[MENUITEM_FEATURES_PKMN_DEATH]; 
     gSaveBlock1Ptr->tx_Features_Unlimited_WT                = sOptions->sel_features[MENUITEM_FEATURES_UNLIMITED_WT]; 
     // MENU_RANDOMIZER
@@ -2153,32 +2167,64 @@ static void DrawChoices_Mode_Classic_Modern_Selector(int selection, int y)
     if (selection == 0)
     {
         sOptions->sel_mode[MENUITEM_MODE_ALTERNATE_SPAWNS]          = TX_MODE_ALTERNATE_SPAWNS;
+        gSaveBlock1Ptr->tx_Mode_AlternateSpawns = 0;
         sOptions->sel_mode[MENUITEM_MODE_INFINITE_TMS]              = TX_MODE_INFINITE_TMS;
+        gSaveBlock1Ptr->tx_Mode_InfiniteTMs = 0;
+        FlagSet (FLAG_FINITE_TMS);
         sOptions->sel_mode[MENUITEM_MODE_SURVIVE_POISON]            = TX_MODE_SURVIVE_POISON;
+        gSaveBlock1Ptr->tx_Mode_PoisonSurvive = 0;
         sOptions->sel_mode[MENUITEM_MODE_SYNCHRONIZE]               = TX_MODE_NEW_SYNCHRONIZE;
+        gSaveBlock1Ptr->tx_Mode_Synchronize = 0;
         sOptions->sel_mode[MENUITEM_MODE_MINTS]                     = TX_MODE_MINTS;
+        gSaveBlock1Ptr->tx_Mode_Mints = 0;
+        FlagClear (FLAG_MINTS_ENABLED);
         sOptions->sel_mode[MENUITEM_MODE_NEW_CITRUS]                = TX_MODE_NEW_CITRUS;
+        gSaveBlock1Ptr->tx_Mode_New_Citrus = 0;
         sOptions->sel_mode[MENUITEM_MODE_MODERN_TYPES]              = TX_MODE_MODERN_TYPES;
+        gSaveBlock1Ptr->tx_Mode_Modern_Types = 0;
         sOptions->sel_mode[MENUITEM_MODE_FAIRY_TYPES]               = TX_MODE_FAIRY_TYPES;
+        gSaveBlock1Ptr->tx_Mode_Fairy_Types = 0;
         sOptions->sel_mode[MENUITEM_MODE_NEW_STATS]                 = TX_MODE_NEW_STATS;
+        gSaveBlock1Ptr->tx_Mode_New_Stats = 0;
         sOptions->sel_mode[MENUITEM_MODE_STURDY]                    = TX_MODE_STURDY;
+        gSaveBlock1Ptr->tx_Mode_Sturdy = 0;
         sOptions->sel_mode[MENUITEM_MODE_MODERN_MOVES]              = TX_MODE_MODERN_MOVES;
+        gSaveBlock1Ptr->tx_Mode_Modern_Moves = 0;
         sOptions->sel_mode[MENUITEM_MODE_LEGENDARY_ABILITIES]       = TX_MODE_LEGENDARY_ABILITIES;
+        gSaveBlock1Ptr->tx_Mode_Legendary_Abilities = 0;
+        sOptions->sel_mode[MENUITEM_MODE_NEW_LEGENDARIES]           = TX_MODE_NEW_LEGENDARIES;
+        gSaveBlock1Ptr->tx_Mode_New_Legendaries = 0;
     }
     else if (selection == 1)
     {
         sOptions->sel_mode[MENUITEM_MODE_ALTERNATE_SPAWNS]          = !TX_MODE_ALTERNATE_SPAWNS;
+        gSaveBlock1Ptr->tx_Mode_AlternateSpawns = 1;
         sOptions->sel_mode[MENUITEM_MODE_INFINITE_TMS]              = !TX_MODE_INFINITE_TMS;
+        gSaveBlock1Ptr->tx_Mode_InfiniteTMs = 1;
+        FlagClear (FLAG_FINITE_TMS);
         sOptions->sel_mode[MENUITEM_MODE_SURVIVE_POISON]            = !TX_MODE_SURVIVE_POISON;
+        gSaveBlock1Ptr->tx_Mode_PoisonSurvive = 1;
         sOptions->sel_mode[MENUITEM_MODE_SYNCHRONIZE]               = !TX_MODE_NEW_SYNCHRONIZE;
+        gSaveBlock1Ptr->tx_Mode_Synchronize = 1;
         sOptions->sel_mode[MENUITEM_MODE_MINTS]                     = !TX_MODE_MINTS;
+        gSaveBlock1Ptr->tx_Mode_Mints = 1;
+        FlagSet (FLAG_MINTS_ENABLED);
         sOptions->sel_mode[MENUITEM_MODE_NEW_CITRUS]                = !TX_MODE_NEW_CITRUS;
+        gSaveBlock1Ptr->tx_Mode_New_Citrus = 1;
         sOptions->sel_mode[MENUITEM_MODE_MODERN_TYPES]              = !TX_MODE_MODERN_TYPES;
+        gSaveBlock1Ptr->tx_Mode_Modern_Types = 1;
         sOptions->sel_mode[MENUITEM_MODE_FAIRY_TYPES]               = !TX_MODE_FAIRY_TYPES;
+        gSaveBlock1Ptr->tx_Mode_Fairy_Types = 1;
         sOptions->sel_mode[MENUITEM_MODE_NEW_STATS]                 = !TX_MODE_NEW_STATS;
+        gSaveBlock1Ptr->tx_Mode_New_Stats = 1;
         sOptions->sel_mode[MENUITEM_MODE_STURDY]                    = !TX_MODE_STURDY;
+        gSaveBlock1Ptr->tx_Mode_Sturdy = 1;
         sOptions->sel_mode[MENUITEM_MODE_MODERN_MOVES]              = !TX_MODE_MODERN_MOVES;
+        gSaveBlock1Ptr->tx_Mode_Modern_Moves = 1;
         sOptions->sel_mode[MENUITEM_MODE_LEGENDARY_ABILITIES]       = !TX_MODE_LEGENDARY_ABILITIES;
+        gSaveBlock1Ptr->tx_Mode_Legendary_Abilities = 1;
+        sOptions->sel_mode[MENUITEM_MODE_NEW_LEGENDARIES]           = !TX_MODE_NEW_LEGENDARIES;
+        gSaveBlock1Ptr->tx_Mode_New_Legendaries = 1;
     }
 }
 
@@ -2309,10 +2355,6 @@ static void DrawChoices_Challenges_Nuzlocke(int selection, int y)
         sOptions->sel_nuzlocke[MENUITEM_NUZLOCKE_SHINY_CLAUSE]      = !TX_NUZLOCKE_SHINY_CLAUSE; 
         sOptions->sel_nuzlocke[MENUITEM_NUZLOCKE_NICKNAMING]        = !TX_NUZLOCKE_NICKNAMING;
         sOptions->sel_nuzlocke[MENUITEM_NUZLOCKE_DELETION]          = TX_NUZLOCKE_DELETION;
-    }
-    if (selection >= 1)
-    {
-        sOptions->sel_features[MENUITEM_FEATURES_PKMN_DEATH]        = !TX_FEATURES_PKMN_DEATH;
     }
 }
 
@@ -2664,11 +2706,11 @@ static void DrawChoices_Features_EasyFeebas(int selection, int y)
 
     if (selection == 0)
     {
-        gSaveBlock1Ptr->optionsEasierFeebas = 0; //off
+        gSaveBlock1Ptr->tx_Features_EasierFeebas = 0; //off
     }
     else
     {
-        gSaveBlock1Ptr->optionsEasierFeebas = 1; //on
+        gSaveBlock1Ptr->tx_Features_EasierFeebas = 1; //on
     }
 
     DrawOptionMenuChoice(sText_Off, 104, y, styles[0], active);
@@ -2934,6 +2976,27 @@ static void DrawChoices_Mode_Legendary_Abilities(int selection, int y)
     else
     {
         gSaveBlock1Ptr->tx_Mode_Legendary_Abilities = 1; //New abilities
+    }
+
+    DrawOptionMenuChoice(sText_Off, 104, y, styles[0], active);
+    DrawOptionMenuChoice(sText_On, GetStringRightAlignXOffset(1, sText_On, 198), y, styles[1], active);
+}
+
+static void DrawChoices_Mode_New_Legendaries(int selection, int y)
+{
+    bool8 active = CheckConditions(MENUITEM_MODE_NEW_LEGENDARIES);
+    u8 styles[2] = {0};
+    styles[selection] = 1;
+
+    if (selection == 0)
+    {
+        gSaveBlock1Ptr->tx_Mode_New_Legendaries = 0; //No extra legendaries
+        FlagClear (FLAG_EXTRA_LEGENDARIES);
+    }
+    else
+    {
+        gSaveBlock1Ptr->tx_Mode_New_Legendaries = 1; //7 extra legendaries
+        FlagSet (FLAG_EXTRA_LEGENDARIES);
     }
 
     DrawOptionMenuChoice(sText_Off, 104, y, styles[0], active);

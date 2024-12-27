@@ -438,6 +438,19 @@ static void HandleInputChooseAction(void)
             BtlController_EmitTwoReturnValues(BUFFER_B, B_ACTION_CANCEL_PARTNER, 0);
             PlayerBufferExecCompleted();
         }
+        else
+        {
+            if (gSaveBlock2Ptr->optionsRunType == 2)
+            {
+                if(!(gBattleTypeFlags & BATTLE_TYPE_TRAINER)) //if wild, pressing B moves cursor to run
+                {
+                    PlaySE(SE_SELECT);
+                    ActionSelectionDestroyCursorAt(gActionSelectionCursor[gActiveBattler]);
+                    gActionSelectionCursor[gActiveBattler] = 3;
+                    ActionSelectionCreateCursorAt(gActionSelectionCursor[gActiveBattler], 0);
+                }
+            }
+        }
     }
     else if (JOY_NEW(START_BUTTON))
     {
@@ -1716,17 +1729,30 @@ u8 TypeEffectiveness(u8 targetId)
     move = gBattleMons[gActiveBattler].moves[gMoveSelectionCursor[gActiveBattler]];
     moveFlags = AI_TypeDisplay(move, gBattleMons[targetId].species, gBattleMons[targetId].ability);
 
-    if (IS_MOVE_STATUS(move) == TRUE && gBattleMoves[move].type != (TYPE_ELECTRIC | TYPE_GROUND)) {
+    if (IS_MOVE_STATUS(move) == TRUE && gBattleMoves[move].type != (TYPE_ELECTRIC | TYPE_GROUND)) 
+    {
         return 10; // return non-electric status moves as normal effectiveness
     }
-    else if (IS_MOVE_STATUS(move) == TRUE && gBattleMoves[move].type == TYPE_ELECTRIC) {
-        if (gBattleMons[targetId].type1 || gBattleMons[targetId].type2 == TYPE_GROUND) {
+    else if (IS_MOVE_STATUS(move) == TRUE && gBattleMoves[move].type == TYPE_ELECTRIC) 
+    {
+        if (gBattleMons[targetId].type1 == TYPE_GROUND || gBattleMons[targetId].type2 == TYPE_GROUND) 
+        {
             return 26; // ground is immune to electric status moves
         }
+        else
+        {
+            return 10;
+        }
     }
-    else if (IS_MOVE_STATUS(move) == TRUE && gBattleMoves[move].type == TYPE_GROUND) {
-        if (gBattleMons[targetId].type1 || gBattleMons[targetId].type2 == TYPE_FLYING) {
+    else if (IS_MOVE_STATUS(move) == TRUE && gBattleMoves[move].type == TYPE_GROUND) 
+    {
+        if (gBattleMons[targetId].type1 == TYPE_FLYING || gBattleMons[targetId].type2 == TYPE_FLYING) 
+        {
             return 26; // flying is immune to ground status moves
+        }
+        else
+        {
+            return 10;
         }
     }
 
@@ -1759,6 +1785,23 @@ static void MoveSelectionDisplayMoveTypeDoubles(u8 targetId)
 	txtPtr++;
 
 	StringCopy(txtPtr, gTypeNames[DisplayMoveTypeChange(moveInfo->moves[gMoveSelectionCursor[gActiveBattler]])]);
+
+    if (moveInfo->moves[gMoveSelectionCursor[gActiveBattler]] == MOVE_HIDDEN_POWER)
+    {
+        u8 typeBits  = ((GetMonData(&gPlayerParty[gBattlerPartyIndexes[gActiveBattler]], MON_DATA_HP_IV) & 1) << 0)
+                     | ((GetMonData(&gPlayerParty[gBattlerPartyIndexes[gActiveBattler]], MON_DATA_ATK_IV) & 1) << 1)
+                     | ((GetMonData(&gPlayerParty[gBattlerPartyIndexes[gActiveBattler]], MON_DATA_DEF_IV) & 1) << 2)
+                     | ((GetMonData(&gPlayerParty[gBattlerPartyIndexes[gActiveBattler]], MON_DATA_SPEED_IV) & 1) << 3)
+                     | ((GetMonData(&gPlayerParty[gBattlerPartyIndexes[gActiveBattler]], MON_DATA_SPATK_IV) & 1) << 4)
+                     | ((GetMonData(&gPlayerParty[gBattlerPartyIndexes[gActiveBattler]], MON_DATA_SPDEF_IV) & 1) << 5);
+
+        u8 type = ((NUMBER_OF_MON_TYPES - 3) * typeBits) / 63 + 1;
+        if (type == TYPE_MYSTERY)
+            type = TYPE_FAIRY;
+        type |= 0xC0;
+        StringCopy(txtPtr, gTypeNames[type & 0x3F]);
+    }
+    
     if (gBattleMoves[moveInfo->moves[gMoveSelectionCursor[gActiveBattler]]].category == MOVE_CATEGORY_STATUS)
         BattlePutTextOnWindow(gDisplayedStringBattle, 10);
     else
@@ -1788,7 +1831,7 @@ static void MoveSelectionDisplayMoveType(void)
                      | ((GetMonData(&gPlayerParty[gBattlerPartyIndexes[gActiveBattler]], MON_DATA_SPATK_IV) & 1) << 4)
                      | ((GetMonData(&gPlayerParty[gBattlerPartyIndexes[gActiveBattler]], MON_DATA_SPDEF_IV) & 1) << 5);
 
-        u8 type = ((NUMBER_OF_MON_TYPES - 2) * typeBits) / 63 + 1;
+        u8 type = ((NUMBER_OF_MON_TYPES - 3) * typeBits) / 63 + 1;
         if (type == TYPE_MYSTERY)
             type = TYPE_FAIRY;
         type |= 0xC0;

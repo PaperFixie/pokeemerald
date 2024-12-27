@@ -61,10 +61,10 @@
 #define FLAG_CAVE_MOONSTONE  0x30 
 #define FLAG_CAVE_SUNSTONE   0x31 
 #define FLAG_EV_MAN_FIRSTIME        0x32
-#define FLAG_MINT_LILYCOVE   0x33
-#define FLAG_MINT_BF         0x34 
+#define FLAG_MODEST_MINT_LILYCOVE   0x33
+#define FLAG_TIMID_MINT_MAUVILLE         0x34 
 #define FLAG_HELIX_FOSSIL_ALTERING   0x35 
-#define FLAG_MINT_SANDTOWER  0x36
+#define FLAG_CALM_MINT_SANDTOWER  0x36
 #define FLAG_DRAKE_REMATCH   0x37 //Elite Four Rematch 4
 #define FLAG_WALLACE_REMATCH 0x38 //Elite Four Rematch 5, Champion
 #define FLAG_STEVEN_REMATCH  0x39 // Steven Rematch, true champion
@@ -653,10 +653,10 @@
 #define FLAG_HIDDEN_ITEM_ROUTE_105_BIG_PEARL                 (FLAG_HIDDEN_ITEMS_START + 0x6F)
 
 #define FLAG_MINTS_CLERK   0x264
-#define FLAG_UNUSED_0x265  0x265 // Unused Flag
-#define FLAG_UNUSED_0x266  0x266 // Unused Flag
-#define FLAG_UNUSED_0x267  0x267 // Unused Flag
-#define FLAG_UNUSED_0x268  0x268 // Unused Flag
+#define FLAG_EXTRA_LEGENDARIES  0x265
+#define FLAG_OLD_MAN_AND_DUSCLOPS  0x266
+#define FLAG_CERULEAN_CAVE_LUCKY_EGG  0x267
+#define FLAG_MET_FRONTIER_ELEMENTAL_MOVE_TUTOR  0x268
 #define FLAG_UNUSED_0x269  0x269 // Unused Flag
 #define FLAG_UNUSED_0x26A  0x26A // Unused Flag
 #define FLAG_UNUSED_0x26B  0x26B // Unused Flag
@@ -1229,8 +1229,9 @@
 #define FLAG_LANDMARK_DRACO_CHAMBER                                 0x49B
 #define FLAG_RAIKOU_BATTLE_2                                        0x49C
 #define FLAG_SUICUNE_BATTLE_1                                       0x49D
-#define FLAG_SUICUNE_BATTLE_2                                       0x49E // Unused Flag
-#define FLAG_UNUSED_0x49F                                           0x49F // Unused Flag
+#define FLAG_SUICUNE_BATTLE_2                                       0x49E
+#define FLAG_NO_SLOW_STAIR_MOVEMENT                                 0x49F // Used to temporaly remove slow stair movement, as it glitches things 
+                                                                          // like Steven in Sootopolis leading to Origin Cave.
 #define FLAG_UNUSED_0x4A0                                           0x4A0 // Unused Flag
 #define FLAG_UNUSED_0x4A1                                           0x4A1 // Unused Flag
 #define FLAG_UNUSED_0x4A2                                           0x4A2 // Unused Flag
@@ -1571,7 +1572,7 @@
 #define FLAG_DAILY_SECRET_BASE                      (DAILY_FLAGS_START + 0x2)
 #define FLAG_UNUSED_0x923                           (DAILY_FLAGS_START + 0x3)  // Sudo2
 #define FLAG_UNUSED_0x924                           (DAILY_FLAGS_START + 0x4)  // Sudo3
-#define FLAG_DAILY_MONEYFARM                        (DAILY_FLAGS_START + 0x5)  // Meowth flag, daily, for money
+#define FLAG_UNUSED_0x925                           (DAILY_FLAGS_START + 0x5)  // Unused Flag
 #define FLAG_WONDERTRADE1                           (DAILY_FLAGS_START + 0x6)  // WondertradeFlag (1)
 #define FLAG_WONDERTRADE2                           (DAILY_FLAGS_START + 0x7)  // WondertradeFlag (2)
 #define FLAG_WONDERTRADE3                           (DAILY_FLAGS_START + 0x8)  // WondertradeFlag (3)

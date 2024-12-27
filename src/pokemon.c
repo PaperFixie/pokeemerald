@@ -6550,6 +6550,8 @@ s32 CalculateBaseDamage(struct BattlePokemon *attacker, struct BattlePokemon *de
     }
     if (attacker->ability == ABILITY_HUSTLE)
         attack = (150 * attack) / 100;
+    if (attacker->ability == ABILITY_CACOPHONY && (gCurrentMove == MOVE_SNORE || gCurrentMove == MOVE_UPROAR || gCurrentMove == MOVE_HYPER_VOICE || gCurrentMove == MOVE_BUG_BUZZ))
+        spAttack = (150 * spAttack) / 100;
     if (attacker->ability == ABILITY_PLUS && ABILITY_ON_FIELD2(ABILITY_MINUS))
         spAttack = (150 * spAttack) / 100;
     if (attacker->ability == ABILITY_MINUS && ABILITY_ON_FIELD2(ABILITY_PLUS))
@@ -8177,6 +8179,8 @@ u8 GetAbilityBySpecies(u16 species, u8 abilityNum)
             || species == SPECIES_LUGIA)
             && (gSaveBlock1Ptr->tx_Mode_Legendary_Abilities == 0))
         gLastUsedAbility = gSpeciesInfo[species].abilities_old[0];
+    else if ((abilityNum == 1) && (species == SPECIES_NOCTOWL) && (gSaveBlock1Ptr->tx_Mode_Modern_Types == 0))
+        gLastUsedAbility = gSpeciesInfo[species].abilities_old[1];
     else if (abilityNum)
         gLastUsedAbility = gSpeciesInfo[species].abilities[1];
     else
@@ -9322,6 +9326,14 @@ u16 GetEvolutionTargetSpecies(struct Pokemon *mon, u8 mode, u16 evolutionItem)
                     }
                 }
                 break;
+            case EVO_ITEM_HOLD:
+                if (heldItem == gEvolutionTable[species][i].param)
+                {
+                    heldItem = 0;
+                    SetMonData(mon, MON_DATA_HELD_ITEM, &heldItem);
+                    targetSpecies = gEvolutionTable[species][i].targetSpecies;
+                }
+                break;
             }
         }
         break;
@@ -10413,13 +10425,13 @@ u16 GetBattleBGM(void)
                 return MUS_HG_VS_GYM_LEADER_KANTO;
             else if (gSaveBlock2Ptr->optionsTrainerBattleMusic == 5)
             {
-                if((Random() % 5) == 0)
-                    return MUS_RG_VS_GYM_LEADER;
                 if((Random() % 5) == 1)
-                    return MUS_DP_VS_GYM_LEADER;
+                    return MUS_RG_VS_GYM_LEADER;
                 if((Random() % 5) == 2)
-                    return MUS_HG_VS_GYM_LEADER;
+                    return MUS_DP_VS_GYM_LEADER;
                 if((Random() % 5) == 3)
+                    return MUS_HG_VS_GYM_LEADER;
+                if((Random() % 5) == 4)
                     return MUS_HG_VS_GYM_LEADER_KANTO;
                 else
                     return MUS_VS_GYM_LEADER;
@@ -10438,18 +10450,19 @@ u16 GetBattleBGM(void)
                 return MUS_HG_VS_CHAMPION;
             else if (gSaveBlock2Ptr->optionsTrainerBattleMusic == 5)
             {
-                if((Random() % 4) == 0)
-                    return MUS_RG_VS_CHAMPION;
                 if((Random() % 4) == 1)
-                    return MUS_DP_VS_CHAMPION;
+                    return MUS_RG_VS_CHAMPION;
                 if((Random() % 4) == 2)
+                    return MUS_DP_VS_CHAMPION;
+                if((Random() % 4) == 3)
                     return MUS_HG_VS_CHAMPION;
                 else
                     return MUS_VS_CHAMPION;
             }
             return MUS_VS_CHAMPION;
         case TRAINER_CLASS_RIVAL:
-            if ((gBattleTypeFlags & BATTLE_TYPE_FRONTIER) || (!StringCompare(gTrainers[gTrainerBattleOpponent_A].trainerName, gText_BattleWallyName)))
+            //if ((gBattleTypeFlags & BATTLE_TYPE_FRONTIER) || (!StringCompare(gTrainers[gTrainerBattleOpponent_A].trainerName, gText_BattleWallyName)))
+            {
                 if (gSaveBlock2Ptr->optionsTrainerBattleMusic == 0)
                     return MUS_VS_RIVAL;
                 else if (gSaveBlock2Ptr->optionsTrainerBattleMusic == 1)
@@ -10469,6 +10482,7 @@ u16 GetBattleBGM(void)
                     else
                         return MUS_VS_RIVAL;
                 }
+            }
             return MUS_VS_RIVAL;
         case TRAINER_CLASS_ELITE_FOUR:
             if (gSaveBlock2Ptr->optionsTrainerBattleMusic == 0)
@@ -10483,13 +10497,13 @@ u16 GetBattleBGM(void)
                 return MUS_HG_VS_GYM_LEADER_KANTO;
             else if (gSaveBlock2Ptr->optionsTrainerBattleMusic == 5)
             {
-                if((Random() % 5) == 0)
-                    return MUS_DP_VS_ELITE_FOUR;
                 if((Random() % 5) == 1)
-                    return MUS_RG_VS_GYM_LEADER;
+                    return MUS_DP_VS_ELITE_FOUR;
                 if((Random() % 5) == 2)
-                    return MUS_HG_VS_GYM_LEADER;
+                    return MUS_RG_VS_GYM_LEADER;
                 if((Random() % 5) == 3)
+                    return MUS_HG_VS_GYM_LEADER;
+                if((Random() % 5) == 4)
                     return MUS_HG_VS_GYM_LEADER_KANTO;
                 else
                     return MUS_VS_ELITE_FOUR;
@@ -10537,13 +10551,13 @@ u16 GetBattleBGM(void)
                     return MUS_HG_VS_TRAINER_KANTO;
                 else if (gSaveBlock2Ptr->optionsFrontierTrainerBattleMusic == 5)
                 {
-                    if((Random() % 5) == 0)
-                        return MUS_DP_VS_TRAINER;
                     if((Random() % 5) == 1)
-                        return MUS_RG_VS_TRAINER;
+                        return MUS_DP_VS_TRAINER;
                     if((Random() % 5) == 2)
-                        return MUS_HG_VS_TRAINER;
+                        return MUS_RG_VS_TRAINER;
                     if((Random() % 5) == 3)
+                        return MUS_HG_VS_TRAINER;
+                    if((Random() % 5) == 4)
                         return MUS_HG_VS_TRAINER_KANTO;
                     else
                         return MUS_VS_TRAINER;
@@ -10564,13 +10578,13 @@ u16 GetBattleBGM(void)
                     return MUS_HG_VS_TRAINER_KANTO;
                 else if (gSaveBlock2Ptr->optionsTrainerBattleMusic == 5)
                 {
-                    if((Random() % 5) == 0)
-                        return MUS_DP_VS_TRAINER;
                     if((Random() % 5) == 1)
-                        return MUS_RG_VS_TRAINER;
+                        return MUS_DP_VS_TRAINER;
                     if((Random() % 5) == 2)
-                        return MUS_HG_VS_TRAINER;
+                        return MUS_RG_VS_TRAINER;
                     if((Random() % 5) == 3)
+                        return MUS_HG_VS_TRAINER;
+                    if((Random() % 5) == 4)
                         return MUS_HG_VS_TRAINER_KANTO;
                     else
                         return MUS_VS_TRAINER;
@@ -10592,13 +10606,13 @@ u16 GetBattleBGM(void)
             return MUS_HG_VS_WILD_KANTO;
         else if (gSaveBlock2Ptr->optionsWildBattleMusic == 5)
         {
-            if((Random() % 5) == 0)
-                return MUS_HG_VS_WILD_KANTO;
             if((Random() % 5) == 1)
-                return MUS_RG_VS_WILD;
+                return MUS_HG_VS_WILD_KANTO;
             if((Random() % 5) == 2)
-                return MUS_DP_VS_WILD;
+                return MUS_RG_VS_WILD;
             if((Random() % 5) == 3)
+                return MUS_DP_VS_WILD;
+            if((Random() % 5) == 4)
                 return MUS_HG_VS_WILD;
             else
                 return MUS_VS_WILD;
@@ -11576,12 +11590,16 @@ u8 GetTypeBySpecies(u16 species, u8 typeNum)
     && (species == SPECIES_ARBOK 
     || species == SPECIES_PARASECT 
     || species == SPECIES_GOLDUCK
+    || species == SPECIES_KINGLER
     || species == SPECIES_MEGANIUM
     || species == SPECIES_TYPHLOSION
     || species == SPECIES_FERALIGATR
     || species == SPECIES_NOCTOWL
     || species == SPECIES_SUNFLORA
     || species == SPECIES_STANTLER
+    || species == SPECIES_GROVYLE
+    || species == SPECIES_SCEPTILE
+    || species == SPECIES_MASQUERAIN
     || species == SPECIES_DELCATTY
     || species == SPECIES_GULPIN
     || species == SPECIES_SWALOT
@@ -11618,6 +11636,15 @@ u8 GetTypeBySpecies(u16 species, u8 typeNum)
             type = gSpeciesInfo[species].types_old[0];
         else
             type = gSpeciesInfo[species].types_old[1];
+    }
+    else if ((gSaveBlock1Ptr->tx_Mode_Modern_Types == 1) 
+    && (species == SPECIES_SNUBBULL
+    || species == SPECIES_GRANBULL))
+    {
+        if (typeNum == 1)
+            type = gSpeciesInfo[species].types_new[0];
+        else
+            type = gSpeciesInfo[species].types_new[1];
     }
     else
     {

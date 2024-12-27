@@ -344,7 +344,8 @@ struct PokedexView
     u16 maxScrollTimer;
     u16 scrollSpeed;
     u16 unkArr1[4]; // Cleared, never read
-    u8 filler[8];
+    u16 originalSearchSelectionNum;
+    u8 filler[6];
     u8 currentPage;
     u8 currentPageBackup;
     bool8 isSearchResults:1;
@@ -2161,6 +2162,7 @@ static void ResetPokedexView(struct PokedexView *pokedexView)
         pokedexView->unkArr2[i] = 0;
     for (i = 0; i < ARRAY_COUNT(pokedexView->unkArr3); i++)
         pokedexView->unkArr3[i] = 0;
+    pokedexView->originalSearchSelectionNum = 0;
 }
 
 static void VBlankCB_Pokedex(void)
@@ -2462,6 +2464,11 @@ static bool8 LoadPokedexListPage(u8 page)
     case 3:
         if (page == PAGE_MAIN)
             CreatePokedexList(sPokedexView->dexMode, sPokedexView->dexOrder);
+        if (sPokedexView->originalSearchSelectionNum != 0)
+        {
+            sPokedexListItem->dexNum = sPokedexView->originalSearchSelectionNum;
+            sPokedexView->originalSearchSelectionNum = 0;
+        }
         CreateMonSpritesAtPos(sPokedexView->selectedPokemon, 0xE);
         sPokedexView->statBarsSpriteId = 0xFF;  //HGSS_Ui stat bars
         CreateStatBars(&sPokedexView->pokedexList[sPokedexView->selectedPokemon]); //HGSS_Ui stat bars
@@ -2957,7 +2964,30 @@ static u16 TryDoPokedexScroll(u16 selectedMon, u16 ignored)
         sPokedexView->justScrolled = TRUE; //HGSS_Ui
         PlaySE(SE_DEX_SCROLL);
     }
-    else if (JOY_NEW(DPAD_LEFT) && (selectedMon > 0))
+    else if (JOY_HELD(DPAD_LEFT) && JOY_HELD(R_BUTTON) && (selectedMon > 0))
+    {
+        startingPos = selectedMon;
+
+        for (i = 0; i < 16; i++)
+            selectedMon = GetNextPosition(1, selectedMon, 0, sPokedexView->pokemonListCount - 1);
+        sPokedexView->pokeBallRotation += 16 * (selectedMon - startingPos);
+        ClearMonSprites();
+        CreateMonSpritesAtPos(selectedMon, 0xE);
+        sPokedexView->justScrolled = TRUE; //HGSS_Ui
+        PlaySE(SE_DEX_PAGE);
+    }
+    else if (JOY_HELD(DPAD_RIGHT) && JOY_HELD(R_BUTTON) && (selectedMon < sPokedexView->pokemonListCount - 1))
+    {
+        startingPos = selectedMon;
+        for (i = 0; i < 16; i++)
+            selectedMon = GetNextPosition(0, selectedMon, 0, sPokedexView->pokemonListCount - 1);
+        sPokedexView->pokeBallRotation += 16 * (selectedMon - startingPos);
+        ClearMonSprites();
+        CreateMonSpritesAtPos(selectedMon, 0xE);
+        sPokedexView->justScrolled = TRUE; //HGSS_Ui
+        PlaySE(SE_DEX_PAGE);
+    }
+    else if (JOY_HELD(DPAD_LEFT) && (selectedMon > 0))
     {
         startingPos = selectedMon;
 
@@ -2967,9 +2997,9 @@ static u16 TryDoPokedexScroll(u16 selectedMon, u16 ignored)
         ClearMonSprites();
         CreateMonSpritesAtPos(selectedMon, 0xE);
         sPokedexView->justScrolled = TRUE; //HGSS_Ui
-        PlaySE(SE_DEX_PAGE);
+        PlaySE(SE_DEX_SCROLL);
     }
-    else if (JOY_NEW(DPAD_RIGHT) && (selectedMon < sPokedexView->pokemonListCount - 1))
+    else if (JOY_HELD(DPAD_RIGHT) && (selectedMon < sPokedexView->pokemonListCount - 1))
     {
         startingPos = selectedMon;
         for (i = 0; i < 7; i++)
@@ -2978,7 +3008,7 @@ static u16 TryDoPokedexScroll(u16 selectedMon, u16 ignored)
         ClearMonSprites();
         CreateMonSpritesAtPos(selectedMon, 0xE);
         sPokedexView->justScrolled = TRUE; //HGSS_Ui
-        PlaySE(SE_DEX_PAGE);
+        PlaySE(SE_DEX_SCROLL);
     }
 
     if (scrollDir == 0)
@@ -4498,90 +4528,177 @@ static void PrintMonHeight(u16 height, u8 left, u8 top)
     u8 buffer[16];
     u32 inches, feet;
     u8 i = 0;
+    int offset;
+    u8 result;
+    offset = 0;
 
-    inches = (height * 10000) / 254;
-    if (inches % 10 >= 5)
-        inches += 10;
-    feet = inches / 120;
-    inches = (inches - (feet * 120)) / 10;
+    if (gSaveBlock2Ptr->optionsUnitSystem == 1) //Imperial
+    {
+        inches = (height * 10000) / 254;
+        if (inches % 10 >= 5)
+            inches += 10;
+        feet = inches / 120;
+        inches = (inches - (feet * 120)) / 10;
 
-    buffer[i++] = EXT_CTRL_CODE_BEGIN;
-    buffer[i++] = EXT_CTRL_CODE_CLEAR_TO;
-    if (feet / 10 == 0)
-    {
-        buffer[i++] = 18;
-        buffer[i++] = feet + CHAR_0;
+        buffer[i++] = EXT_CTRL_CODE_BEGIN;
+        buffer[i++] = EXT_CTRL_CODE_CLEAR_TO;
+        if (feet / 10 == 0)
+        {
+            buffer[i++] = 18;
+            buffer[i++] = feet + CHAR_0;
+        }
+        else
+        {
+            buffer[i++] = 12;
+            buffer[i++] = feet / 10 + CHAR_0;
+            buffer[i++] = (feet % 10) + CHAR_0;
+        }
+        buffer[i++] = CHAR_SGL_QUOTE_RIGHT;
+        buffer[i++] = (inches / 10) + CHAR_0;
+        buffer[i++] = (inches % 10) + CHAR_0;
+        buffer[i++] = CHAR_DBL_QUOTE_RIGHT;
+        buffer[i++] = EOS;
+        PrintInfoScreenText(buffer, left, top);
     }
-    else
+    else //Metric
     {
-        buffer[i++] = 12;
-        buffer[i++] = feet / 10 + CHAR_0;
-        buffer[i++] = (feet % 10) + CHAR_0;
+        buffer[i++] = EXT_CTRL_CODE_BEGIN;
+        buffer[i++] = EXT_CTRL_CODE_CLEAR_TO;
+        i++;
+        buffer[i++] = CHAR_SPACE;
+        buffer[i++] = CHAR_SPACE;
+        buffer[i++] = CHAR_SPACE;
+        buffer[i++] = CHAR_SPACE;
+        buffer[i++] = CHAR_SPACE;
+
+        result = (height / 1000);
+        if (result == 0)
+        {
+            offset = 6;
+        }
+        else
+        {
+            buffer[i++] = result + CHAR_0;
+        }
+
+        result = (height % 1000) / 100;
+        if (result == 0 && offset != 0)
+        {
+            offset += 6;
+        }
+        else
+        {
+            buffer[i++] = result + CHAR_0;
+        }
+
+        buffer[i++] = (((height % 1000) % 100) / 10) + CHAR_0;
+        buffer[i++] = CHAR_COMMA;
+        buffer[i++] = (((height % 1000) % 100) % 10) + CHAR_0;
+        buffer[i++] = CHAR_SPACE;
+        buffer[i++] = CHAR_m;
+
+        buffer[i++] = EOS;
+        buffer[2] = offset;
+        PrintInfoScreenText(buffer, left, top);   
     }
-    buffer[i++] = CHAR_SGL_QUOTE_RIGHT;
-    buffer[i++] = (inches / 10) + CHAR_0;
-    buffer[i++] = (inches % 10) + CHAR_0;
-    buffer[i++] = CHAR_DBL_QUOTE_RIGHT;
-    buffer[i++] = EOS;
-    PrintInfoScreenText(buffer, left, top);
 }
 
 static void PrintMonWeight(u16 weight, u8 left, u8 top)
 {
     u8 buffer[16];
+    u8 buffer_metric[18];
     bool8 output;
-    u8 i;
+    u8 i = 0;
     u32 lbs = (weight * 100000) / 4536;
+    int offset = 0;
+    u8 result;
 
-    if (lbs % 10u >= 5)
-        lbs += 10;
-    i = 0;
-    output = FALSE;
-
-    if ((buffer[i] = (lbs / 100000) + CHAR_0) == CHAR_0 && !output)
+    if (gSaveBlock2Ptr->optionsUnitSystem == 1) //Imperial
     {
-        buffer[i++] = CHAR_SPACER;
+        if (lbs % 10u >= 5)
+            lbs += 10;
+        i = 0;
+        output = FALSE;
+
+        if ((buffer[i] = (lbs / 100000) + CHAR_0) == CHAR_0 && !output)
+        {
+            buffer[i++] = CHAR_SPACER;
+        }
+        else
+        {
+            output = TRUE;
+            i++;
+        }
+
+        lbs %= 100000;
+        if ((buffer[i] = (lbs / 10000) + CHAR_0) == CHAR_0 && !output)
+        {
+            buffer[i++] = CHAR_SPACER;
+        }
+        else
+        {
+            output = TRUE;
+            i++;
+        }
+
+        lbs %= 10000;
+        if ((buffer[i] = (lbs / 1000) + CHAR_0) == CHAR_0 && !output)
+        {
+            buffer[i++] = CHAR_SPACER;
+        }
+        else
+        {
+            output = TRUE;
+            i++;
+        }
+
+        lbs %= 1000;
+        buffer[i++] = (lbs / 100) + CHAR_0;
+        lbs %= 100;
+        buffer[i++] = CHAR_PERIOD;
+        buffer[i++] = (lbs / 10) + CHAR_0;
+        buffer[i++] = CHAR_SPACE;
+        buffer[i++] = CHAR_l;
+        buffer[i++] = CHAR_b;
+        buffer[i++] = CHAR_s;
+        buffer[i++] = CHAR_PERIOD;
+        buffer[i++] = EOS;
+        PrintInfoScreenText(buffer, left, top);
     }
-    else
+    else //Metric
     {
-        output = TRUE;
+        buffer_metric[i++] = EXT_CTRL_CODE_BEGIN;
+        buffer_metric[i++] = EXT_CTRL_CODE_CLEAR_TO;
         i++;
-    }
+        buffer_metric[i++] = CHAR_SPACE;
+        buffer_metric[i++] = CHAR_SPACE;
+        buffer_metric[i++] = CHAR_SPACE;
+        buffer_metric[i++] = CHAR_SPACE;
+        buffer_metric[i++] = CHAR_SPACE;
 
-    lbs %= 100000;
-    if ((buffer[i] = (lbs / 10000) + CHAR_0) == CHAR_0 && !output)
-    {
-        buffer[i++] = CHAR_SPACER;
-    }
-    else
-    {
-        output = TRUE;
-        i++;
-    }
+        result = (weight / 1000);
+        if (result == 0)
+            offset = 6;
+        else
+            buffer_metric[i++] = result + CHAR_0;
 
-    lbs %= 10000;
-    if ((buffer[i] = (lbs / 1000) + CHAR_0) == CHAR_0 && !output)
-    {
-        buffer[i++] = CHAR_SPACER;
-    }
-    else
-    {
-        output = TRUE;
-        i++;
-    }
+        result = (weight % 1000) / 100;
+        if (result == 0 && offset != 0)
+            offset += 6;
+        else
+            buffer_metric[i++] = result + CHAR_0;
 
-    lbs %= 1000;
-    buffer[i++] = (lbs / 100) + CHAR_0;
-    lbs %= 100;
-    buffer[i++] = CHAR_PERIOD;
-    buffer[i++] = (lbs / 10) + CHAR_0;
-    buffer[i++] = CHAR_SPACE;
-    buffer[i++] = CHAR_l;
-    buffer[i++] = CHAR_b;
-    buffer[i++] = CHAR_s;
-    buffer[i++] = CHAR_PERIOD;
-    buffer[i++] = EOS;
-    PrintInfoScreenText(buffer, left, top);
+        buffer_metric[i++] = (((weight % 1000) % 100) / 10) + CHAR_0;
+        buffer_metric[i++] = CHAR_COMMA;
+        buffer_metric[i++] = (((weight % 1000) % 100) % 10) + CHAR_0;
+        buffer_metric[i++] = CHAR_SPACE;
+        buffer_metric[i++] = CHAR_k;
+        buffer_metric[i++] = CHAR_g;
+
+        buffer_metric[i++] = EOS;
+        buffer_metric[2] = offset;
+        PrintInfoScreenText(buffer_metric, left, top);
+    }
 }
 
 // Unused in the English version, used to print height/weight in versions which use metric system.
@@ -5138,13 +5255,27 @@ static void FreeStatsScreenWindowAndBgBuffers(void)
 
 static void Task_HandleStatsScreenInput(u8 taskId)
 {
+    u8 selected         = sPokedexView->moveSelected;
+    u8 moves_x = 5;
+    u8 moves_y = 3;
+    u16 move;
+    move = sStatsMoves[selected];
+
     if (JOY_NEW(A_BUTTON))
     {
         PlaySE(SE_DEX_PAGE);
         if (gTasks[taskId].data[5] == 0)
+            {            
             gTasks[taskId].data[5] = 1;
+            SetTypeIconPosAndPal(NUMBER_OF_MON_TYPES + gContestMoves[move].contestCategory, moves_x + 146, moves_y + 17, 1);
+            SetSpriteInvisibility(0, TRUE);
+            }
         else
+            {
             gTasks[taskId].data[5] = 0;
+            SetTypeIconPosAndPal(gBattleMoves[move].type, moves_x + 146, moves_y + 17, 0);
+            SetSpriteInvisibility(1, TRUE);
+            }
 
         FillWindowPixelBuffer(WIN_STATS_LEFT, PIXEL_FILL(0));
         PrintStatsScreen_Left(taskId);
@@ -5367,7 +5498,7 @@ static void PrintStatsScreen_Moves_Top(u8 taskId)
     if (gTasks[taskId].data[5] == 0)
     {
         SetTypeIconPosAndPal(gBattleMoves[move].type, moves_x + 146, moves_y + 17, 0);
-        SetSpriteInvisibility(1, TRUE);
+        SetSpriteInvisibility(1, TRUE); 
     }
     else
     {
@@ -6387,6 +6518,9 @@ static void Task_HandleEvolutionScreenInput(u8 taskId)
 
         if (JOY_NEW(A_BUTTON))
         {
+            if (sPokedexView->isSearchResults && sPokedexView->originalSearchSelectionNum == 0)
+                sPokedexView->originalSearchSelectionNum = sPokedexListItem->dexNum;
+
             u16 targetSpecies   = sPokedexView->sEvoScreenData.targetSpecies[sPokedexView->sEvoScreenData.menuPos];
             u16 dexNum          = SpeciesToNationalPokedexNum(targetSpecies);
             sPokedexListItem->dexNum = dexNum;
@@ -6703,9 +6837,9 @@ static u8 PrintEvolutionTargetSpeciesAndMethod(u8 taskId, u16 species, u8 depth,
         previousTargetSpecies = targetSpecies;
         targetSpecies = gEvolutionTable[species][i].targetSpecies;
         sPokedexView->sEvoScreenData.targetSpecies[base_i] = targetSpecies;
-        #ifdef TX_DIFFICULTY_CHALLENGES_USED
-            if (gSaveBlock1Ptr->txRandEvolutions && targetSpecies != SPECIES_NONE) //tx_difficulty_challenges
-                targetSpecies = GetSpeciesRandomSeeded(targetSpecies, TX_RANDOM_T_EVO, 0);
+        #ifdef TX_RANDOMIZER_AND_CHALLENGES
+        if (gSaveBlock1Ptr->tx_Random_Evolutions && targetSpecies != SPECIES_NONE) //tx_difficulty_challenges
+            targetSpecies = GetSpeciesRandomSeeded(targetSpecies, TX_RANDOM_T_EVO, 0);
         #endif
         CreateCaughtBallEvolutionScreen(targetSpecies, base_x + depth_x*depth-9, base_y + base_y_offset*base_i, 0);
         HandleTargetSpeciesPrint(taskId, targetSpecies, previousTargetSpecies, base_x + depth_x*depth, base_y, base_y_offset, base_i, isEevee); //evolution mon name
@@ -6813,11 +6947,16 @@ static u8 PrintEvolutionTargetSpeciesAndMethod(u8 taskId, u16 species, u8 depth,
             ConvertIntToDecimalStringN(gStringVar2, gEvolutionTable[species][i].param, STR_CONV_MODE_LEADING_ZEROS, EVO_SCREEN_LVL_DIGITS); //level
             StringExpandPlaceholders(gStringVar4, gText_EVO_LEVEL_DUSK );
             break;
+        case EVO_ITEM_HOLD:
+            item = gEvolutionTable[species][i].param; //item
+            CopyItemName(item, gStringVar2); //item
+            StringExpandPlaceholders(gStringVar4, gText_EVO_ITEM_HOLD );
+            break;
         default:
             StringExpandPlaceholders(gStringVar4, gText_EVO_UNKNOWN );
             break;
         }//Switch end
-        PrintInfoScreenTextSmall(gStringVar4, base_x-10 + depth_x*depth+base_x_offset, base_y + base_y_offset*base_i); //Print actual instructions
+        PrintInfoScreenTextSmall(gStringVar4, base_x + depth_x*depth+base_x_offset, base_y + base_y_offset*base_i); //Print actual instructions
 
         depth_i += PrintEvolutionTargetSpeciesAndMethod(taskId, targetSpecies, depth+1, base_i+1);
     }//For loop end

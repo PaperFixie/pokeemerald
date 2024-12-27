@@ -205,7 +205,7 @@
 #define USE_RANDOM_IVS (MAX_PER_STAT_IVS + 1)
 #define MAX_PER_STAT_EVS 252
 #define MAX_TOTAL_EVS 510
-#define EV_ITEM_RAISE_LIMIT 100
+#define EV_ITEM_RAISE_LIMIT 252
 
 // Battle move flags
 #define FLAG_MAKES_CONTACT          (1 << 0)
@@ -263,6 +263,7 @@
 #define EVO_MOVE_TYPE        23 // Pokémon levels up, knows move with specified type
 #define EVO_LEVEL_FEMALE_MORNING 24 // Pokémon levels up, being female, during the day
 #define EVO_LEVEL_MALE_MORNING   25 // Pokémon levels up, being male, during the day
+#define EVO_ITEM_HOLD        26 // Pokémon levels up, holds specified item
 
 #define EVOS_PER_MON 8
 #define EVOS_PER_LINE 9

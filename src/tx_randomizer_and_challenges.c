@@ -17,7 +17,7 @@ bool8 AreFeaturesActivated(void)
         || gSaveBlock1Ptr->tx_Mode_AlternateSpawns
         || gSaveBlock1Ptr->tx_Mode_InfiniteTMs
         || gSaveBlock1Ptr->tx_Mode_PoisonSurvive
-        || gSaveBlock1Ptr->optionsEasierFeebas)
+        || gSaveBlock1Ptr->tx_Features_EasierFeebas)
         return TRUE;
 
     return FALSE;
@@ -285,9 +285,9 @@ void NuzlockeDeleteFaintedPartyPokemon(void) // @Kurausukun
                     AddBagItem(monItem, 1);
                     SetMonData(pokemon, MON_DATA_HELD_ITEM, ITEM_NONE);
                 }
-                if (gSaveBlock1Ptr->tx_Features_PkmnDeath)
+                if ((gSaveBlock1Ptr->tx_Features_PkmnDeath) && (!IsNuzlockeActive()))
                     NuzlockeDeletePartyMonOption(i);
-                else if (!gSaveBlock1Ptr->tx_Features_PkmnDeath)
+                else
                     NuzlockeDeletePartyMon(i);
             }
         }

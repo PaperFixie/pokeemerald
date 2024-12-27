@@ -101,6 +101,8 @@ static void SetDefaultOptions(void)
     gSaveBlock2Ptr->optionsfollowerEnable = 0;
     gSaveBlock2Ptr->optionsfollowerLargeEnable = 1;
     gSaveBlock2Ptr->optionsautoRun = 1;
+    gSaveBlock2Ptr->optionsAutorunDive = 1;
+    gSaveBlock2Ptr->optionsAutorunSurf = 1;
     gSaveBlock2Ptr->optionsDisableMatchCall = 0;
     gSaveBlock2Ptr->optionStyle = 0;
     gSaveBlock2Ptr->optionTypeEffective = 0;
@@ -117,6 +119,10 @@ static void SetDefaultOptions(void)
     gSaveBlock2Ptr->optionsSkipIntro = 1;
     gSaveBlock2Ptr->optionsLRtoRun = 0;
     gSaveBlock2Ptr->optionsBallPrompt = 1;
+    gSaveBlock2Ptr->optionsUnitSystem = 0;
+    gSaveBlock2Ptr->optionsMusicOnOff = 0;
+    gSaveBlock2Ptr->optionsNewBackgrounds = 0;
+    gSaveBlock2Ptr->optionsRunType = 1;
 }
 
 static void ClearPokedexFlags(void)
@@ -174,6 +180,7 @@ void NewGameInitData(void)
     bool8 TMPrev = FlagGet(FLAG_FINITE_TMS);
     bool8 UnlimitedWT = FlagGet(FLAG_UNLIMITIED_WONDERTRADE);
     bool8 EnableMints = FlagGet(FLAG_MINTS_ENABLED);
+    bool8 EnableExtraLegendaries = FlagGet(FLAG_EXTRA_LEGENDARIES);
 
     if (gSaveFileStatus == SAVE_STATUS_EMPTY || gSaveFileStatus == SAVE_STATUS_CORRUPT)
         RtcReset();
@@ -233,11 +240,14 @@ void NewGameInitData(void)
     ResetTrainerHillResults();
     ResetContestLinkResults();
     RandomizeTypeEffectivenessListEWRAM(Random32());
+    if ((gSaveBlock1Ptr->tx_Features_PkmnDeath) && (gSaveBlock1Ptr->tx_Challenges_Nuzlocke))
+        gSaveBlock1Ptr->tx_Features_PkmnDeath = 0;
 
     HardPrev ? FlagSet(FLAG_DIFFICULTY_HARD) : FlagClear(FLAG_DIFFICULTY_HARD);
     TMPrev ? FlagSet(FLAG_FINITE_TMS) : FlagClear(FLAG_FINITE_TMS);
     UnlimitedWT ? FlagSet(FLAG_UNLIMITIED_WONDERTRADE) : FlagClear(FLAG_UNLIMITIED_WONDERTRADE);
     EnableMints ? FlagSet(FLAG_MINTS_ENABLED) : FlagClear(FLAG_MINTS_ENABLED);
+    EnableExtraLegendaries ? FlagSet(FLAG_EXTRA_LEGENDARIES) : FlagClear(FLAG_EXTRA_LEGENDARIES);
 
     /*if (difficultyPrev == DIFFICULTY_EASY)
         VarSet(VAR_DIFFICULTY, DIFFICULTY_EASY);
